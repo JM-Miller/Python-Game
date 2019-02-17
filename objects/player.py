@@ -10,7 +10,7 @@ class Player(GameObject):
     weight = 1
     xAccel = 0.25
 
-    xBrake = 2
+    xBrake = 1
     
     xMomentum = 0
     yMomentum = 0
@@ -18,8 +18,8 @@ class Player(GameObject):
     xMomentumAdd = 0
     yMomentumAdd = 0
 
-    xMaxSpeed = 7
-    yMaxSpeed = 9
+    xMaxSpeed = 5
+    yMaxSpeed = 7.5
 
     jumpSpeed = 10
 

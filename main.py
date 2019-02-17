@@ -1,7 +1,9 @@
 from tkinter import *
 from objects import *
-from rooms import test_room
-import msvcrt
+from rooms import test_room    
+from time import time, sleep
+
+
 
 class Application(Frame):
 
@@ -29,7 +31,6 @@ class Application(Frame):
 
         self.CANVAS = Canvas(self, width=self.canvasWidth, height=self.canvasHeight)
         self.CANVAS.pack()
-        self.CANVAS.create_rectangle(0, 0, self.canvasWidth, self.canvasHeight, fill="cornflowerblue")
 
     def __init__(self, master=None):
         Frame.__init__(self, master)
@@ -41,6 +42,7 @@ class Application(Frame):
             room.Create()
 
     def gameLoop(self):
+        self.CANVAS.delete("all")
         self.CANVAS.create_rectangle(0, 0, self.canvasWidth, self.canvasHeight, fill="cornflowerblue")
         for room in self.rooms:
             room.Update(self.keysHeld)
@@ -72,7 +74,20 @@ root.bind( '<KeyPress>', lambda e: app.updateKeysPressed(e.keycode, True))
 root.bind( '<KeyRelease>', lambda e:  app.updateKeysPressed(e.keycode, False))
 
 while app.isRunning:
+
+    fps=60
+    frameperiod=1.0/fps
+    now=time()
+    nextframe=now+frameperiod
+    for frame in range(120):
+        while now<nextframe:
+            sleep(nextframe-now)
+            now = time()
+
+    nextframe += frameperiod
+
     app.gameLoop()
     app.update_idletasks()
     app.update()
+
 root.destroy()
