@@ -35,6 +35,9 @@ class Player(GameObject):
 
     block = False
 
+    lastXDirection = 1
+    lastYDirection = 1
+
     def Create(self, scrollBuffer):
         self.mapScrollBuffer = scrollBuffer
     
@@ -42,6 +45,22 @@ class Player(GameObject):
         canvas.create_rectangle(self.x, self.y, self.width + self.x, self.height + self.y, fill=self.fill)
         
     def Update(self, keysHeld, screenWidth=None, screenHeight=None, collisionObjects=None):
+
+        if self.xMomentum > 0:
+            lastXDirection = 1
+        if self.xMomentum < 0:
+            lastXDirection = -1
+            
+        if self.xMomentum == 0:
+            lastXDirection = 0
+        
+        if self.yMomentum == 0:
+            lastYDirection = 0
+            
+        if self.yMomentum > 0:
+            lastYDirection = 1
+        if self.yMomentum < 0:
+            lastYDirection = -1
 
         if self.yMomentum > self.yMaxSpeed:
             self.yMomentum = self.yMaxSpeed
@@ -71,7 +90,15 @@ class Player(GameObject):
                 else:
                     if self.xMomentum < -0.5:
                         self.xMomentum += self.xBrake
-                        
+
+        if self.xMomentum == 0 and self.CheckForXCollision(collisionObjects):
+            self.xMomentum = 2
+            self.x += self.xMomentum * -self.lastXDirection
+            self.yMomentum = 0
+        if self.yMomentum == 0 and self.CheckForYCollision(collisionObjects):
+            self.yMomentum = 2
+            self.y += self.yMomentum * -self.lastYDirection
+            self.yMomentum = 0
         
         playerRightBuffer = self.x + self.width + self.mapScrollBuffer
         playerLeftBuffer = self.x - self.mapScrollBuffer
@@ -114,6 +141,8 @@ class Player(GameObject):
                 else:
                     self.x += self.xMomentum
             self.xMomentum = 0
+
+        
 
     def CheckForYCollision(self, collisionObjects):
         for collision in collisionObjects:
