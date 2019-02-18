@@ -1,5 +1,6 @@
 from objects.tilemap.tile import EmptyTile, SolidTile
 from objects.game_object import GameObject
+from csv import *
 
 class TileMap(GameObject):
 
@@ -13,6 +14,14 @@ class TileMap(GameObject):
     playerObject = None
     tileGrid = []
     tileObjects = []
+
+    def LoadTileMapFile(self, filePath="tilemap.CSV"):
+        with open(filePath, 'rt') as mapFile:
+            for row in reader(mapFile):
+                tileRow = []
+                for cell in row:
+                    tileRow.append(int(cell))
+                self.tileGrid.append(tileRow)
 
     def LoadTestTileMap(self):
         self.tileGrid = [
@@ -46,7 +55,8 @@ class TileMap(GameObject):
             self.tileObjects.append(tileObjectRow)
 
     def Create(self, player, scrollBuffer):
-        self.LoadTestTileMap()
+        # self.LoadTestTileMap()
+        self.LoadTileMapFile()
         self.InitializeTiles()
         self.playerObject = player
         self.mapScrollBuffer = scrollBuffer

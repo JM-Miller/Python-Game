@@ -3,8 +3,6 @@ from objects import *
 from rooms import test_room    
 from time import time, sleep
 
-
-
 class Application(Frame):
 
     keysHeld = []
