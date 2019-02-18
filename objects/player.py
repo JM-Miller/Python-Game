@@ -8,10 +8,10 @@ class Player(GameObject):
     xTileMapMove = 0
     yTileMapMove = 0
 
-    width = 8
-    height = 8
+    width = 15
+    height = 15
 
-    weight = 1.2
+    weight = 1
     xAccel = 0.25
 
     xBrake = 1
@@ -26,7 +26,7 @@ class Player(GameObject):
     xMaxSpeed = 5
     yMaxSpeed = 7.5
 
-    jumpSpeed = 15.10
+    jumpSpeed = 10
     
     mapScrollBuffer = 64
 
