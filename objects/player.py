@@ -4,10 +4,14 @@ class Player(GameObject):
 
     x = 80
     y = 80
-    width = 16
-    height = 16
 
-    weight = 1
+    xTileMapMove = 0
+    yTileMapMove = 0
+
+    width = 8
+    height = 8
+
+    weight = 1.2
     xAccel = 0.25
 
     xBrake = 1
@@ -22,18 +26,22 @@ class Player(GameObject):
     xMaxSpeed = 5
     yMaxSpeed = 7.5
 
-    jumpSpeed = 10
+    jumpSpeed = 15.10
+    
+    mapScrollBuffer = 64
 
     sprite = None
     fill = "blue"
 
     block = False
 
+    def Create(self, scrollBuffer):
+        self.mapScrollBuffer = scrollBuffer
     
     def Render(self, canvas):
         canvas.create_rectangle(self.x, self.y, self.width + self.x, self.height + self.y, fill=self.fill)
         
-    def Update(self, keysHeld, collisionObjects=None):
+    def Update(self, keysHeld, screenWidth=None, screenHeight=None, collisionObjects=None):
 
         if self.yMomentum > self.yMaxSpeed:
             self.yMomentum = self.yMaxSpeed
@@ -63,29 +71,63 @@ class Player(GameObject):
                 else:
                     if self.xMomentum < -0.5:
                         self.xMomentum += self.xBrake
+                        
+        
+        playerRightBuffer = self.x + self.width + self.mapScrollBuffer
+        playerLeftBuffer = self.x - self.mapScrollBuffer
+        playerBottomBuffer = self.y + self.height + self.mapScrollBuffer
+        playerTopBuffer = self.y - self.mapScrollBuffer
+
 
         if not self.CheckForYCollision(collisionObjects):
-            self.y += self.yMomentum
+            if playerBottomBuffer > screenWidth:
+                self.yTileMapMove += self.yMomentum
+            else:
+                self.y += self.yMomentum
         else:
-            self.yMomentum = 1
+            self.yMomentum *= -1
+            if self.yMomentum > 0:
+                self.yMomentum = -1
+            if self.yMomentum < 0:
+                self.yMomentum = 1
             if not self.CheckForYCollision(collisionObjects):
-                self.y += 1
+                if playerBottomBuffer > screenWidth:
+                    self.yTileMapMove += self.yMomentum
+                else:
+                    self.y += self.yMomentum
+            self.yMomentum = 1
+
+        playerXBuffer = playerLeftBuffer
+        if self.xMomentum > 0:
+            playerXBuffer = playerRightBuffer
 
         if not self.CheckForXCollision(collisionObjects):
-            self.x += self.xMomentum
+            if playerXBuffer > screenWidth or playerXBuffer < 0:
+                self.xTileMapMove += self.xMomentum
+            else:
+                self.x += self.xMomentum
         else:
-            self.xMomentum = 1
+            self.xMomentum *= -1
             if not self.CheckForXCollision(collisionObjects):
-                self.x += 1
-
+                if playerXBuffer > screenWidth or playerXBuffer < 0:
+                        self.xTileMapMove += self.xMomentum
+                else:
+                    self.x += self.xMomentum
+            self.xMomentum = 0
 
     def CheckForYCollision(self, collisionObjects):
         for collision in collisionObjects:
             collisionTop = collision.y
             collisionBottom = collision.y + collision.height
-            selfTop = self.y + self.yMomentum
-            selfBottom = self.y + self.height + self.yMomentum
+            selfTop = self.y
+            selfBottom = self.y + self.height
+            if self.yTileMapMove != 0:
+                selfTop += self.yMomentum
+                selfBottom += self.yMomentum
             
+            selfTop += self.yMomentum
+            selfBottom += self.yMomentum
+
             collisionLeft = collision.x
             collisionRight = collision.x + collision.width
             selfLeft = self.x
@@ -95,18 +137,14 @@ class Player(GameObject):
             if selfLeft > collisionLeft and selfLeft < collisionRight or selfRight > collisionLeft and selfRight < collisionRight:
 
                 if selfTop > collisionBottom and selfTop < collisionTop:
-                    print("Collision on Top of Player!")
                     return True
                 if selfBottom > collisionTop and selfBottom < collisionBottom:
-                    print("Collision on Bottom of Player!")
                     return True
 
                     
                 if selfBottom > collisionBottom and selfBottom < collisionTop:
-                    print("Collision on Bottom of Player!")
                     return True
                 if selfTop > collisionTop and selfTop < collisionBottom:
-                    print("Collision on Top of Player!")
                     return True
 
         return False
@@ -120,23 +158,26 @@ class Player(GameObject):
 
             collisionLeft = collision.x
             collisionRight = collision.x + collision.width
-            selfLeft = self.x + self.xMomentum
-            selfRight = self.x + self.width + self.xMomentum
+            selfLeft = self.x 
+            selfRight = self.x + self.width
+            
+            if self.xTileMapMove != 0:
+                selfLeft += 1
+                selfRight += 1
+
+            selfLeft += self.xMomentum
+            selfRight += self.xMomentum
 
             if selfTop > collisionTop and selfTop < collisionBottom or selfBottom > collisionTop and selfBottom < collisionBottom:
 
                 if selfLeft > collisionRight and selfLeft < collisionLeft:
-                    print("Collision on Left of Player!")
                     return True
                 if selfRight > collisionLeft and selfRight < collisionRight:
-                    print("Collision on Right of Player!")
                     return True
 
                 if selfRight > collisionRight and selfRight < collisionLeft:
-                    print("Collision on Right of Player!")
                     return True
                 if selfLeft > collisionLeft and selfLeft < collisionRight:
-                    print("Collision on Left of Player!")
                     return True
 
         return False

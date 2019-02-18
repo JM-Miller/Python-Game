@@ -30,9 +30,9 @@ class GameObject():
 
     
     def Render(self, canvas):
-            canvas.create_rectangle(x, y, self.width, self.height, fill=self.fill)
+        canvas.create_rectangle(x, y, self.width, self.height, fill=self.fill)
         
-    def Update(self, keysHeld, collisionObjects=None):
+    def Update(self, keysHeld, screenWidth=None, screenHeight=None, collisionObjects=None):
         pass
 
     def Create(self):

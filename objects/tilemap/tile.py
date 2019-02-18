@@ -10,16 +10,12 @@ class SolidTile(GameObject):
     fill = "black"
 
     
-    def Render(self, canvas, xPosition, yPosition):
+    def Render(self, canvas, xPixelOffset, yPixelOffset, xPosition, yPosition):
 
-        self.x = xPosition * self.width
-        self.y = yPosition * self.height
+        self.x = xPosition * self.width + xPixelOffset
+        self.y = yPosition * self.height + yPixelOffset
 
-        # if self.sprite is None:
         canvas.create_rectangle(self.x, self.y, self.width + self.x, self.height + self.y, fill=self.fill)
-        # else:
-        #     canvas.create_image(self.x, self.y, self.width + self.x, self.height + self.y, image=self.sprite)
-
 
 class EmptyTile(GameObject):
 
@@ -32,7 +28,7 @@ class EmptyTile(GameObject):
     block = False
 
     
-    def Render(self, canvas, xPosition, yPosition):
+    def Render(self, canvas, xPixelOffset, yPixelOffset, xPosition, yPosition):
         pass
         # self.x = yPosition * self.width
         # self.y = xPosition * self.height
