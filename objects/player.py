@@ -2,8 +2,8 @@ from objects.game_object import GameObject
 
 class Player(GameObject):
 
-    x = 100
-    y = 100
+    x = 80
+    y = 80
     width = 16
     height = 16
 
@@ -101,6 +101,14 @@ class Player(GameObject):
                     print("Collision on Bottom of Player!")
                     return True
 
+                    
+                if selfBottom > collisionBottom and selfBottom < collisionTop:
+                    print("Collision on Bottom of Player!")
+                    return True
+                if selfTop > collisionTop and selfTop < collisionBottom:
+                    print("Collision on Top of Player!")
+                    return True
+
         return False
             
     def CheckForXCollision(self, collisionObjects):
@@ -122,6 +130,13 @@ class Player(GameObject):
                     return True
                 if selfRight > collisionLeft and selfRight < collisionRight:
                     print("Collision on Right of Player!")
+                    return True
+
+                if selfRight > collisionRight and selfRight < collisionLeft:
+                    print("Collision on Right of Player!")
+                    return True
+                if selfLeft > collisionLeft and selfLeft < collisionRight:
+                    print("Collision on Left of Player!")
                     return True
 
         return False
