@@ -4,18 +4,22 @@ class Enemy(GameObject):
 
     fill = "red"
     weight = 1
-    x = 100
+    x = 160
     y = 80
+    width = 17
+    height = 17
     xMaxSpeed = 10
     yMaxSpeed = 10
     xPixelOffset = 0
     yPixelOffset = 0
+
+    block = False
     
 
-    player = None
+    playerObject = None
 
     def Create(self, player):
-        self.player = player
+        self.playerObject = player
         
 
     def Update(self, keysHeld, xPixelOffset=0, yPixelOffset=0, screenWidth=None, screenHeight=None, collisionObjects=None, mapFollowing=False):
@@ -25,4 +29,24 @@ class Enemy(GameObject):
         self.yPixelOffset = yPixelOffset
         super().Update(keysHeld, screenWidth, screenHeight, collisionObjects, mapFollowing)
 
+        playerCollisionX = self.playerObject.CheckForXCollision([self])
+        playerCollisionY = self.playerObject.CheckForYCollision([self])
+
+        if playerCollisionX is not None or playerCollisionY is not None: 
+            if self.playerObject.y >= self.y: 
+                self.playerObject.xMomentum = -self.playerObject.xMomentum
+                self.DealDamage()
+            else:
+                self.xMomentum = self.playerObject.xMomentum + 1
+                if self.playerObject.x < self.x:
+                    self.x += self.playerObject.width
+                if self.playerObject.x > self.x:
+                    self.x -= self.width
+                self.TakeDamage()
+
+    def DealDamage(self):
+        pass
+        
+    def TakeDamage(self):
+        pass
 

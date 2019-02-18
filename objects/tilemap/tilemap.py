@@ -62,16 +62,14 @@ class TileMap(GameObject):
 
     def Create(self, changeRoom, player, scrollBuffer):
 
-
-        testEnemy = Enemy()
-        testEnemy.Create(self.playerObject)
-        self.gameObjects.append(testEnemy)
-
         # self.LoadTestTileMap()
         self.LoadTileMapFile()
         self.InitializeTiles(changeRoom)
         self.playerObject = player
         self.mapScrollBuffer = scrollBuffer
+        testEnemy = Enemy()
+        testEnemy.Create(self.playerObject)
+        self.gameObjects.append(testEnemy)
 
     def Update(self, keysHeld, screenWidth, screenHeight, collisionObjects):
         if self.playerObject.yTileMapMove != 0:
