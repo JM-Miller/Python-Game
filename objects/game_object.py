@@ -25,18 +25,123 @@ class GameObject():
 
     xTileMapMove = 0
     yTileMapMove = 0
+    
+    lastXDirection = 1
+    lastYDirection = 1
 
     sprite = None
-    fill = "red"
+    fill = "pink"
 
     block = True
 
+    wantRight = False
+    wantLeft = False
+    wantJump = False
+
+    mapScrollBuffer = 64
+
     
     def Render(self, canvas):
-        canvas.create_rectangle(x, y, self.width, self.height, fill=self.fill)
+        canvas.create_rectangle(self.x, self.y, self.x + self.width, self.y + self.height, fill=self.fill)
         
-    def Update(self, keysHeld, screenWidth=None, screenHeight=None, collisionObjects=None):
-        pass
+        
+    def Update(self, keysHeld, screenWidth=None, screenHeight=None, collisionObjects=None, mapFollowing=False):
+
+        if self.xMomentum > 0:
+            lastXDirection = 1
+        if self.xMomentum < 0:
+            lastXDirection = -1
+            
+        if self.xMomentum == 0:
+            lastXDirection = 0
+        
+        if self.yMomentum == 0:
+            lastYDirection = 0
+            
+        if self.yMomentum > 0:
+            lastYDirection = 1
+        if self.yMomentum < 0:
+            lastYDirection = -1
+
+        if self.yMomentum > self.yMaxSpeed:
+            self.yMomentum = self.yMaxSpeed
+
+        if self.xMomentum > self.xMaxSpeed:
+            self.xMomentum = self.xMaxSpeed
+
+        if self.wantLeft:
+            if self.xMaxSpeed > -1 * self.xMomentum:
+                self.xMomentum -= self.xAccel
+
+        if self.wantRight:
+            if self.xMaxSpeed > self.xMomentum:
+                self.xMomentum += self.xAccel
+
+        if self.wantJump:
+            if self.CheckForYCollision(collisionObjects):
+                self.yMomentum = -self.jumpSpeed
+
+
+        if not self.wantLeft and not self.wantRight:
+            if self.xMomentum > 0.5:
+                self.xMomentum -= self.xBrake
+            else:
+                if self.xMomentum < 0.5 and self.xMomentum > -0.5:
+                    self.xMomentum = 0
+                else:
+                    if self.xMomentum < -0.5:
+                        self.xMomentum += self.xBrake
+
+        if self.xMomentum == 0 and self.CheckForXCollision(collisionObjects):
+            self.xMomentum = 2
+            self.x += self.xMomentum * -self.lastXDirection
+            self.yMomentum = 0
+        if self.yMomentum == 0 and self.CheckForYCollision(collisionObjects):
+            self.yMomentum = 2
+            self.y += self.yMomentum * -self.lastYDirection
+            self.yMomentum = 0
+        
+        playerRightBuffer = self.x + self.width + self.mapScrollBuffer
+        playerLeftBuffer = self.x - self.mapScrollBuffer
+        playerBottomBuffer = self.y + self.height + self.mapScrollBuffer
+        playerTopBuffer = self.y - self.mapScrollBuffer
+
+
+        if not self.CheckForYCollision(collisionObjects):
+            if playerBottomBuffer > screenWidth:
+                self.yTileMapMove += self.yMomentum
+            else:
+                self.y += self.yMomentum
+        else:
+            self.yMomentum *= -1
+            if self.yMomentum > 0:
+                self.yMomentum = -1
+            if self.yMomentum < 0:
+                self.yMomentum = 1
+            if not self.CheckForYCollision(collisionObjects):
+                if playerBottomBuffer > screenWidth:
+                    self.yTileMapMove += self.yMomentum
+                else:
+                    self.y += self.yMomentum
+            self.yMomentum = 1
+
+        playerXBuffer = playerLeftBuffer
+        if self.xMomentum > 0:
+            playerXBuffer = playerRightBuffer
+
+        if not self.CheckForXCollision(collisionObjects):
+            if playerXBuffer > screenWidth or playerXBuffer < 0:
+                self.xTileMapMove += self.xMomentum
+            else:
+                self.x += self.xMomentum
+        else:
+            self.xMomentum *= -1
+            if not self.CheckForXCollision(collisionObjects):
+                if playerXBuffer > screenWidth or playerXBuffer < 0:
+                    self.xTileMapMove += self.xMomentum
+                else:
+                    self.x += self.xMomentum
+            self.xMomentum = 0
 
     def Create(self, changeRoom):
         pass
