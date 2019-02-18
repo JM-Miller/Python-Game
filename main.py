@@ -1,6 +1,7 @@
 from tkinter import *
 from objects import *
-from rooms import test_room    
+from rooms import test_room
+from rooms import menu_room
 from time import time, sleep
 
 class Application(Frame):
@@ -13,6 +14,8 @@ class Application(Frame):
     canvasHeight = 320
 
     rooms = []
+
+    activeRoom = None
 
     def exit(self):
         if self.isRunning:
@@ -36,18 +39,20 @@ class Application(Frame):
     def gameLoop(self):
         self.CANVAS.delete("all")
         self.CANVAS.create_rectangle(0, 0, self.canvasWidth, self.canvasHeight, fill="cornflowerblue")
-        for room in self.rooms:
-            room.Update(self.keysHeld)
-            room.Render(self.CANVAS)
+        self.activeRoom.Update(self.keysHeld)
+        self.activeRoom.Render(self.CANVAS)
+        # for room in self.rooms:
+        #     room.Update(self.keysHeld)
+        #     room.Render(self.CANVAS)
             
         self.CANVAS.update()
         
-        
     def initGame(self):
-        self.rooms = [test_room.TestRoom()]
+        self.activeRoom = test_room.TestRoom()
+        self.rooms = { 1: self.activeRoom, 0: menu_room.MenuRoom()}
 
-        for room in self.rooms:
-            room.Create()
+        for roomIndex in self.rooms:
+            self.rooms[roomIndex].Create(self.changeRoom)
 
     def updateKeysPressed(self, keycode, isPressed):
         if isPressed:
@@ -55,6 +60,9 @@ class Application(Frame):
                 self.keysHeld.append(keycode)
         else:
             self.keysHeld.remove(keycode)
+
+    def changeRoom(self, roomId):
+        self.activeRoom = self.rooms[roomId] 
 
 
 root = Tk()

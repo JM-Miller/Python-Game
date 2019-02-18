@@ -13,13 +13,17 @@ class TestRoom(Room):
     tileMaps = []
     collisionObjectsInRoom = []
 
-    def Create(self):
-        player = Player()
+    playerObject = None
+
+    def Create(self, changeRoom):
         foregroundTileMap = TileMap()
+        self.playerObject = Player()
+        self.playerObject.Create(changeRoom, self.scrollBuffer)
+        foregroundTileMap.Create(changeRoom, self.playerObject, self.scrollBuffer)
+
         self.tileMaps = [foregroundTileMap]
-        foregroundTileMap.Create(player, self.scrollBuffer)
-        player.Create(self.scrollBuffer)
-        self.gameObjects = [foregroundTileMap, player]
+        self.gameObjects = [self.playerObject, foregroundTileMap]
+        self.gameObjects.append(foregroundTileMap)
 
         for tileMap in self.tileMaps:
             for tileRow in tileMap.tileObjects:
@@ -33,9 +37,7 @@ class TestRoom(Room):
 
 
     def Update(self, keysHeld):
-
         for gameObject in self.gameObjects:
             yAdd = self.gravity * gameObject.weight
             gameObject.yMomentum += yAdd
-            
             gameObject.Update(keysHeld, self.screenWidth, self.screenHeight, self.collisionObjectsInRoom)
