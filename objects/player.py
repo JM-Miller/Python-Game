@@ -38,8 +38,11 @@ class Player(GameObject):
     lastXDirection = 1
     lastYDirection = 1
 
-    def Create(self, scrollBuffer):
+    changeRoom = None
+
+    def Create(self, changeRoom, scrollBuffer):
         self.mapScrollBuffer = scrollBuffer
+        self.changeRoom = changeRoom
     
     def Render(self, canvas):
         canvas.create_rectangle(self.x, self.y, self.width + self.x, self.height + self.y, fill=self.fill)
@@ -143,71 +146,3 @@ class Player(GameObject):
             self.xMomentum = 0
 
         
-
-    def CheckForYCollision(self, collisionObjects):
-        for collision in collisionObjects:
-            collisionTop = collision.y
-            collisionBottom = collision.y + collision.height
-            selfTop = self.y
-            selfBottom = self.y + self.height
-            if self.yTileMapMove != 0:
-                selfTop += self.yMomentum
-                selfBottom += self.yMomentum
-            
-            selfTop += self.yMomentum
-            selfBottom += self.yMomentum
-
-            collisionLeft = collision.x
-            collisionRight = collision.x + collision.width
-            selfLeft = self.x
-            selfRight = self.x + self.width
-
-
-            if selfLeft > collisionLeft and selfLeft < collisionRight or selfRight > collisionLeft and selfRight < collisionRight:
-
-                if selfTop > collisionBottom and selfTop < collisionTop:
-                    return True
-                if selfBottom > collisionTop and selfBottom < collisionBottom:
-                    return True
-
-                    
-                if selfBottom > collisionBottom and selfBottom < collisionTop:
-                    return True
-                if selfTop > collisionTop and selfTop < collisionBottom:
-                    return True
-
-        return False
-            
-    def CheckForXCollision(self, collisionObjects):
-        for collision in collisionObjects:
-            collisionTop = collision.y
-            collisionBottom = collision.y + collision.height
-            selfTop = self.y
-            selfBottom = self.y + self.height
-
-            collisionLeft = collision.x
-            collisionRight = collision.x + collision.width
-            selfLeft = self.x 
-            selfRight = self.x + self.width
-            
-            if self.xTileMapMove != 0:
-                selfLeft += 1
-                selfRight += 1
-
-            selfLeft += self.xMomentum
-            selfRight += self.xMomentum
-
-            if selfTop > collisionTop and selfTop < collisionBottom or selfBottom > collisionTop and selfBottom < collisionBottom:
-
-                if selfLeft > collisionRight and selfLeft < collisionLeft:
-                    return True
-                if selfRight > collisionLeft and selfRight < collisionRight:
-                    return True
-
-                if selfRight > collisionRight and selfRight < collisionLeft:
-                    return True
-                if selfLeft > collisionLeft and selfLeft < collisionRight:
-                    return True
-
-        return False
-            

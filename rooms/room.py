@@ -12,9 +12,9 @@ class Room():
             gameObject.Update(keysHeld)
 
 
-    def Create(self):
+    def Create(self, changeRoom):
         for gameObject in self.gameObjects:
-            gameObject.Create()
+            gameObject.Create(changeRoom)
 
 
     def Destroy(self):

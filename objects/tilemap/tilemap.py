@@ -1,5 +1,6 @@
-from objects.tilemap.tile import EmptyTile, SolidTile
+from objects.tilemap.tile import EmptyTile, SolidTile, WinTile
 from objects.game_object import GameObject
+from csv import *
 
 class TileMap(GameObject):
 
@@ -13,6 +14,14 @@ class TileMap(GameObject):
     playerObject = None
     tileGrid = []
     tileObjects = []
+
+    def LoadTileMapFile(self, filePath="tilemap.CSV"):
+        with open(filePath, 'rt') as mapFile:
+            for row in reader(mapFile):
+                tileRow = []
+                for cell in row:
+                    tileRow.append(int(cell))
+                self.tileGrid.append(tileRow)
 
     def LoadTestTileMap(self):
         self.tileGrid = [
@@ -32,22 +41,26 @@ class TileMap(GameObject):
     def GetTileByTypeId(self, typeId):
         tileTypes = {
             0: EmptyTile,
-            1: SolidTile
+            1: SolidTile,
+            2: WinTile
         }
         return tileTypes[typeId]()
 
 
-    def InitializeTiles(self):
+    def InitializeTiles(self, changeRoom):
         self.tileObjects = []
         for tileRow in self.tileGrid:
             tileObjectRow = []
             for tile in tileRow:
-                tileObjectRow.append(self.GetTileByTypeId(tile))
+                tileOfType = self.GetTileByTypeId(tile)
+                tileOfType.Create(changeRoom)
+                tileObjectRow.append(tileOfType)
             self.tileObjects.append(tileObjectRow)
 
-    def Create(self, player, scrollBuffer):
-        self.LoadTestTileMap()
-        self.InitializeTiles()
+    def Create(self, changeRoom, player, scrollBuffer):
+        # self.LoadTestTileMap()
+        self.LoadTileMapFile()
+        self.InitializeTiles(changeRoom)
         self.playerObject = player
         self.mapScrollBuffer = scrollBuffer
 
@@ -57,6 +70,11 @@ class TileMap(GameObject):
 
         if self.playerObject.xTileMapMove != 0:
             self.x = -self.playerObject.xTileMapMove
+        
+        for tileObjectRow in self.tileObjects:
+            for tile in tileObjectRow:
+                if tile.special:
+                    tile.Update(self, keysHeld, collisionObjects=[self.playerObject])
 
 
     def Render(self, canvas):
