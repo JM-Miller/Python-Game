@@ -7,7 +7,12 @@ class GameObject():
     height = 16
 
     weight = 0
+
     xAccel = 0
+    yAccel = 0
+    
+    xBrake = 1
+    yBrake = 1
     
     xMomentum = 0
     yMomentum = 0

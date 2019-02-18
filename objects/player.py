@@ -11,6 +11,7 @@ class Player(GameObject):
     xAccel = 0.25
 
     xBrake = 1
+    yBrake = 1
     
     xMomentum = 0
     yMomentum = 0
@@ -65,9 +66,17 @@ class Player(GameObject):
 
         if not self.CheckForYCollision(collisionObjects):
             self.y += self.yMomentum
+        else:
+            self.yMomentum = 1
+            if not self.CheckForYCollision(collisionObjects):
+                self.y += 1
 
         if not self.CheckForXCollision(collisionObjects):
             self.x += self.xMomentum
+        else:
+            self.xMomentum = 1
+            if not self.CheckForXCollision(collisionObjects):
+                self.x += 1
 
 
     def CheckForYCollision(self, collisionObjects):
