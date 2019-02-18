@@ -23,12 +23,6 @@ class Application(Frame):
             self.quit()
 
     def createWidgets(self):
-        self.QUIT = Button(self)
-        self.QUIT["text"] = "Quit"
-        self.QUIT["fg"] = "red"
-        self.QUIT["command"] = self.exit
-        self.QUIT.pack({"side": "left"})
-
         self.CANVAS = Canvas(self, width=self.canvasWidth, height=self.canvasHeight)
         self.CANVAS.pack()
 
