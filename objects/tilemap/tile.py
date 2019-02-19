@@ -40,9 +40,16 @@ class SpecialTile(Tile):
         pass
 
     def Update(self, keysHeld, screenWidth=None, screenHeight=None, collisionObjects=None):
-        collision = self.CheckForXCollision(collisionObjects)
-        if collision is None:
-            collision = self.CheckForYCollision(collisionObjects)
+        collision = None
+        collisionX = self.CheckForXCollision(collisionObjects)
+        collisionY = self.CheckForYCollision(collisionObjects)
+
+        if collisionX is not None:
+            collision = collisionX
+        else:
+            if collisionY is not None:
+                collision = collisionY
+
         if collision is not None:
             self.DoSpecialAction(collision)
     
@@ -51,7 +58,6 @@ class SpecialTile(Tile):
         self.y = yPosition * self.height + yPixelOffset
 
         canvas.create_rectangle(self.x, self.y, self.width + self.x, self.height + self.y, fill=self.fill)
-        canvas.create_text(self.x + self.width / 2, self.y + self.height / 2, fill="black", font="sans-serif 8", text="!")
 
 
 
@@ -66,3 +72,58 @@ class WinTile(SpecialTile):
     def DoSpecialAction(self, collision):
         print('You Win!')
         self.changeRoom(0)
+
+    def Render(self, canvas, xPixelOffset, yPixelOffset, xPosition, yPosition):
+        super().Render(canvas, xPixelOffset, yPixelOffset, xPosition, yPosition)
+        canvas.create_text(self.x + self.width / 2, self.y + self.height / 2, fill="black", font="sans-serif 8", text="!")
+
+
+
+class BoostTile(SpecialTile):
+    fill = "purple"
+
+    changeRoom = None
+
+    boostSpeed = 20
+    boostDirection = 0
+
+    text = "^"
+
+    def __init__(self, changeRoom, direction, speed):
+        self.boostSpeed = speed
+        self.boostDirection = direction
+
+        if direction == 0:
+            self.text = "<"
+            self.boostSpeed = speed
+        if direction == 1:
+            self.text = "^"
+            self.boostSpeed = speed
+        if direction == 2:
+            self.text = ">"
+        if direction == 3:
+            self.text = "V"
+        print(changeRoom, direction, speed)
+
+    def Create(self, changeRoom=None):
+        pass
+
+    def DoSpecialAction(self, collision):
+
+        if self.boostDirection == 0:
+            collision.xMomentum -= self.boostSpeed 
+
+        if self.boostDirection == 1:
+            collision.yMomentum -= self.boostSpeed 
+
+        if self.boostDirection == 2:
+            collision.xMomentum += self.boostSpeed 
+
+        if self.boostDirection == 3:
+            collision.xMomentum += self.boostSpeed 
+
+
+    def Render(self, canvas, xPixelOffset, yPixelOffset, xPosition, yPosition):
+        super().Render(canvas, xPixelOffset, yPixelOffset, xPosition, yPosition)
+        canvas.create_text(self.x + self.width / 2, self.y + self.height / 2, fill="black", font="sans-serif 8", text=self.text)
+

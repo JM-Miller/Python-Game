@@ -22,6 +22,9 @@ class GameObject():
 
     xMaxSpeed = 0
     yMaxSpeed = 0
+    
+    xMaxAccel = 0
+    yMaxAccel = 0
 
     xTileMapMove = 0
     yTileMapMove = 0
@@ -70,19 +73,18 @@ class GameObject():
         if self.yMomentum < 0:
             lastYDirection = -1
 
-        if self.yMomentum > self.yMaxSpeed:
-            self.yMomentum = self.yMaxSpeed
-
         if self.xMomentum > self.xMaxSpeed:
             self.xMomentum = self.xMaxSpeed
 
         if self.wantLeft:
             if self.xMaxSpeed > -1 * self.xMomentum:
-                self.xMomentum -= self.xAccel
+                if self.xMomentum > -self.xMaxAccel:
+                    self.xMomentum -= self.xAccel
 
         if self.wantRight:
             if self.xMaxSpeed > self.xMomentum:
-                self.xMomentum += self.xAccel
+                if self.xMomentum < self.xMaxAccel:
+                    self.xMomentum += self.xAccel
 
         if self.wantJump:
             if self.CheckForYCollision(collisionObjects):

@@ -14,8 +14,11 @@ class Player(GameObject):
     xBrake = 1
     yBrake = 1
 
-    xMaxSpeed = 5
-    yMaxSpeed = 7.5
+    xMaxSpeed = 50
+    yMaxSpeed = 50
+    
+    xMaxAccel = 5
+    yMaxAccel = 7.5
 
     jumpSpeed = 10
 

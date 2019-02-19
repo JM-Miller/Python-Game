@@ -1,4 +1,4 @@
-from objects.tilemap.tile import EmptyTile, SolidTile, WinTile
+from objects.tilemap.tile import EmptyTile, SolidTile, WinTile, BoostTile
 from objects.game_object import GameObject
 from objects.enemies.enemy import Enemy
 from csv import *
@@ -23,7 +23,7 @@ class TileMap(GameObject):
             for row in reader(mapFile):
                 tileRow = []
                 for cell in row:
-                    tileRow.append(int(cell))
+                    tileRow.append(cell)
                 self.tileGrid.append(tileRow)
 
     def LoadTestTileMap(self):
@@ -42,12 +42,16 @@ class TileMap(GameObject):
         
 
     def GetTileByTypeId(self, typeId):
+        if str(typeId)[0] == "B":
+            
+            return BoostTile(changeRoom=None, direction=int(str(typeId)[1:3]), speed=int(str(typeId)[3:5]))
+
         tileTypes = {
             0: EmptyTile,
             1: SolidTile,
             2: WinTile
         }
-        return tileTypes[typeId]()
+        return tileTypes[int(typeId)]()
 
 
     def InitializeTiles(self, changeRoom):
@@ -56,7 +60,7 @@ class TileMap(GameObject):
             tileObjectRow = []
             for tile in tileRow:
                 tileOfType = self.GetTileByTypeId(tile)
-                tileOfType.Create(changeRoom)
+                tileOfType.Create(changeRoom=changeRoom)
                 tileObjectRow.append(tileOfType)
             self.tileObjects.append(tileObjectRow)
 
