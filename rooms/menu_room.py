@@ -12,7 +12,7 @@ class MenuRoom(Room):
     
 
     def Render(self, canvas):
-        menuItemText = "You win!"
+        menuItemText = "     You won! \nOr alternatively,\n     You Died!"
         canvas.create_rectangle(0, 0, self.screenWidth, self.screenHeight, fill="black")
         
         canvas.create_text(self.screenWidth / 2, self.screenHeight / 2, fill=self.menuFontColor, font="sans-serif " + str(self.menuFontSize), text=menuItemText)

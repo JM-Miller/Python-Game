@@ -18,6 +18,12 @@ class Player(GameObject):
     yMaxSpeed = 7.5
 
     jumpSpeed = 10
+
+    startHealth = 100
+    currentHealth = 100
+    showHealth = False
+    framesSinceHealthShown = 0
+    framesToShowHealth = 90
     
     sprite = None
     fill = "blue"
@@ -31,13 +37,35 @@ class Player(GameObject):
         self.changeRoom = changeRoom
     
     def Render(self, canvas):
+        if self.isDestroyed:
+            return
+        
+        if self.showHealth:
+            self.framesSinceHealthShown += 1
+        if self.framesSinceHealthShown > self.framesToShowHealth:
+            self.showHealth = False
+            self.framesSinceHealthShown = 0
+
         canvas.create_rectangle(self.x, self.y, self.width + self.x, self.height + self.y, fill=self.fill)
+        
+        if self.showHealth:
+            healthPercent = self.currentHealth / self.startHealth
+            healthBarWidth = self.width * healthPercent + 2
+            canvas.create_rectangle(self.x + (self.width / 2) - (healthBarWidth / 2), self.y - 5, self.x + (self.width / 2) + (healthBarWidth / 2), self.y - 2, fill="green")
+
 
     def Update(self, keysHeld, screenWidth=None, screenHeight=None, collisionObjects=None, mapFollowing=True):
+        if self.isDestroyed:
+            return
         self.wantLeft = 37 in keysHeld
         self.wantJump = 38 in keysHeld
         self.wantRight = 39 in keysHeld    
         super().Update(keysHeld, screenWidth, screenHeight, collisionObjects, mapFollowing)
     
 
-        
+    def TakeDamage(self, damage):
+        self.showHealth = True
+        self.currentHealth -= damage
+        if self.currentHealth < 0:
+            self.changeRoom(0)
+

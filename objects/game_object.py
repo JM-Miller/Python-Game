@@ -38,14 +38,21 @@ class GameObject():
     wantLeft = False
     wantJump = False
 
+    isDestroyed = False
+
     mapScrollBuffer = 64
 
     
     def Render(self, canvas):
+        if self.isDestroyed:
+            return
+
         canvas.create_rectangle(self.x, self.y, self.x + self.width, self.y + self.height, fill=self.fill)
         
         
     def Update(self, keysHeld, screenWidth=None, screenHeight=None, collisionObjects=None, mapFollowing=False):
+        if self.isDestroyed:
+            return
 
         if self.xMomentum > 0:
             lastXDirection = 1
@@ -135,7 +142,7 @@ class GameObject():
             else:
                 self.x += self.xMomentum
         else:
-            self.xMomentum *= -1
+            self.xMomentum *= -0.5
             if not self.CheckForXCollision(collisionObjects):
                 if playerXBuffer > screenWidth or playerXBuffer < 0:
                     self.xTileMapMove += self.xMomentum
@@ -148,7 +155,8 @@ class GameObject():
 
 
     def Destroy(self):
-        pass
+        self.isDestroyed = True
+        self.block = False
         
     def CheckForYCollision(self, collisionObjects):
         for collision in collisionObjects:
