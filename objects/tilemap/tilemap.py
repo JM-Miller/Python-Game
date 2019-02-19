@@ -1,5 +1,6 @@
 from objects.tilemap.tile import EmptyTile, SolidTile, WinTile
 from objects.game_object import GameObject
+from objects.enemies.enemy import Enemy
 from csv import *
 
 class TileMap(GameObject):
@@ -14,6 +15,8 @@ class TileMap(GameObject):
     playerObject = None
     tileGrid = []
     tileObjects = []
+
+    gameObjects = []
 
     def LoadTileMapFile(self, filePath="tilemap.CSV"):
         with open(filePath, 'rt') as mapFile:
@@ -58,11 +61,15 @@ class TileMap(GameObject):
             self.tileObjects.append(tileObjectRow)
 
     def Create(self, changeRoom, player, scrollBuffer):
+
         # self.LoadTestTileMap()
         self.LoadTileMapFile()
         self.InitializeTiles(changeRoom)
         self.playerObject = player
         self.mapScrollBuffer = scrollBuffer
+        testEnemy = Enemy()
+        testEnemy.Create(self.playerObject)
+        self.gameObjects.append(testEnemy)
 
     def Update(self, keysHeld, screenWidth, screenHeight, collisionObjects):
         if self.playerObject.yTileMapMove != 0:
@@ -71,13 +78,22 @@ class TileMap(GameObject):
         if self.playerObject.xTileMapMove != 0:
             self.x = -self.playerObject.xTileMapMove
         
+        collisions = [self.playerObject]
+
         for tileObjectRow in self.tileObjects:
             for tile in tileObjectRow:
+                if tile.block:
+                    collisions.append(tile)
                 if tile.special:
                     tile.Update(self, keysHeld, collisionObjects=[self.playerObject])
 
+                    
+        for gameObject in self.gameObjects:
+            gameObject.Update(keysHeld, self.x, self.y, screenWidth, screenHeight, collisions)
+
 
     def Render(self, canvas):
+
         for tileObjectRow in self.tileObjects:
             for tile in tileObjectRow:
                 tile.Render(canvas, self.x, self.y, tileObjectRow.index(tile), self.tileObjects.index(tileObjectRow))
