@@ -2,6 +2,9 @@ class Room():
 
     gameObjects = []
     tileMaps = []
+    activeUpdate = False
+    activeRender = False
+    arg = None
     
     def Render(self, canvas):
         for gameObject in self.gameObjects:

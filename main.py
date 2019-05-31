@@ -1,7 +1,9 @@
 from tkinter import *
 from objects import *
-from rooms import test_room
-from rooms import menu_room
+from rooms.room import Room
+from rooms.menu_room import MenuRoom
+from rooms.test_room import TestRoom
+from rooms.dialog_room import DialogRoom
 from time import time, sleep
 
 class Application(Frame):
@@ -39,18 +41,24 @@ class Application(Frame):
     def gameLoop(self):
         self.CANVAS.delete("all")
         self.CANVAS.create_rectangle(0, 0, self.canvasWidth, self.canvasHeight, fill="cornflowerblue")
-        self.activeRoom.Update(self.keysHeld)
-        self.activeRoom.Render(self.CANVAS)
-        # for room in self.rooms:
-        #     room.Update(self.keysHeld)
-        #     room.Render(self.CANVAS)
+        # self.activeRoom.Update(self.keysHeld)
+        # self.activeRoom.Render(self.CANVAS)
+        for key in self.rooms:
+            currentRoom = self.rooms[key]
+            if currentRoom.activeUpdate:
+                currentRoom.Update(self.keysHeld)
+            if currentRoom.activeRender:
+                currentRoom.Render(self.CANVAS)
+
             
         self.CANVAS.update()
         
         
     def initGame(self):
-        self.activeRoom = test_room.TestRoom()
-        self.rooms = { 1: self.activeRoom, 0: menu_room.MenuRoom()}
+        self.activeRoom = TestRoom()
+        self.activeRoom.activeUpdate = True
+        self.activeRoom.activeRender = True
+        self.rooms = { 1: self.activeRoom, 0: MenuRoom(), 2: DialogRoom()}
 
         for roomIndex in self.rooms:
             self.rooms[roomIndex].Create(self.changeRoom)
@@ -62,8 +70,12 @@ class Application(Frame):
         else:
             self.keysHeld.remove(keycode)
 
-    def changeRoom(self, roomId):
-        self.activeRoom = self.rooms[roomId] 
+    def changeRoom(self, roomId, arg=None):
+        self.activeRoom.activeUpdate = False
+        self.rooms[roomId].arg = arg
+        self.rooms[roomId].activeUpdate = True
+        self.rooms[roomId].activeRender = True
+        # self.activeRoom = self.rooms[roomId] 
 
 
 root = Tk()

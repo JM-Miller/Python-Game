@@ -76,7 +76,6 @@ class WinTile(SpecialTile):
         self.changeRoom = changeRoom
 
     def DoSpecialAction(self, collision, screenWidth, screenHeight):
-        print('You Win!')
         self.changeRoom(0)
 
     def Render(self, canvas, xPixelOffset, yPixelOffset, xPosition, yPosition):
@@ -101,7 +100,6 @@ class DoorTile(SpecialTile):
         self.changeRoom = changeRoom
 
     def Activate(self, collision, screenWidth, screenHeight):
-        print('Warp!')
         collision[0].x = (self.targetX * self.width) - collision[0].xTileMapMove
         collision[0].y = (self.targetY * self.height) - collision[0].yTileMapMove
         # Left
@@ -109,28 +107,24 @@ class DoorTile(SpecialTile):
             diff = collision[0].mapScrollBuffer - ((collision[0].x + collision[0].xTileMapMove) - collision[0].width)
             collision[0].x = collision[0].mapScrollBuffer
             collision[0].xTileMapMove = -diff
-            print(diff)
 
         # Right
         if collision[0].x > screenWidth - collision[0].mapScrollBuffer:
             diff = ((collision[0].x + collision[0].xTileMapMove) - collision[0].width) - (screenWidth - collision[0].mapScrollBuffer)
             collision[0].x = screenWidth - collision[0].mapScrollBuffer
             collision[0].xTileMapMove = diff
-            print(diff)
             
         # Top
         if collision[0].y < collision[0].mapScrollBuffer:
             diff = collision[0].mapScrollBuffer - ((collision[0].y + collision[0].yTileMapMove) - collision[0].height)
             collision[0].y = collision[0].mapScrollBuffer
             collision[0].yTileMapMove = -diff
-            print(diff)
 
         # Bottom
         if collision[0].y > screenHeight - collision[0].mapScrollBuffer:
             diff = ((collision[0].y + collision[0].yTileMapMove) - collision[0].height) - (screenHeight - collision[0].mapScrollBuffer)
             collision[0].y = screenHeight - collision[0].mapScrollBuffer
             collision[0].yTileMapMove = diff
-            print(diff)
 
 
 class WarpTile(SpecialTile):
@@ -152,7 +146,6 @@ class WarpTile(SpecialTile):
         self.changeRoom = changeRoom
 
     def DoSpecialAction(self, collision, screenWidth, screenHeight):
-        print('Warp!')
         collision[0].x = (self.targetX * self.width) - collision[0].xTileMapMove
         collision[0].y = (self.targetY * self.height) - collision[0].yTileMapMove
         # Left
@@ -160,28 +153,24 @@ class WarpTile(SpecialTile):
             diff = collision[0].mapScrollBuffer - ((collision[0].x + collision[0].xTileMapMove) - collision[0].width)
             collision[0].x = collision[0].mapScrollBuffer
             collision[0].xTileMapMove = -diff
-            print(diff)
 
         # Right
         if collision[0].x > screenWidth - collision[0].mapScrollBuffer:
             diff = ((collision[0].x + collision[0].xTileMapMove) - collision[0].width) - (screenWidth - collision[0].mapScrollBuffer)
             collision[0].x = screenWidth - collision[0].mapScrollBuffer
             collision[0].xTileMapMove = diff
-            print(diff)
             
         # Top
         if collision[0].y < collision[0].mapScrollBuffer:
             diff = collision[0].mapScrollBuffer - ((collision[0].y + collision[0].yTileMapMove) - collision[0].height)
             collision[0].y = collision[0].mapScrollBuffer
             collision[0].yTileMapMove = -diff
-            print(diff)
 
         # Bottom
         if collision[0].y > screenHeight - collision[0].mapScrollBuffer:
             diff = ((collision[0].y + collision[0].yTileMapMove) - collision[0].height) - (screenHeight - collision[0].mapScrollBuffer)
             collision[0].y = screenHeight - collision[0].mapScrollBuffer
             collision[0].yTileMapMove = diff
-            print(diff)
 
     def Render(self, canvas, xPixelOffset, yPixelOffset, xPosition, yPosition):
         super().Render(canvas, xPixelOffset, yPixelOffset, xPosition, yPosition)
@@ -190,19 +179,37 @@ class WarpTile(SpecialTile):
 
 class DecorativeTile(SpecialTile):
     fill = "pink"
+    block = False
+
+
+class SignTile(SpecialTile):
+    fill = "Brown"
     width = 16
     height = 16
+    block = True
+    text = "!"
+    dialogId = 0
+    drawDialog = False
 
     changeRoom = None
 
-    def Create(self, changeRoom):
+    def __init__(self, changeRoom, dialogId):
+        self.Create(changeRoom, dialogId)
+        self.dialogId = dialogId
+
+    def Create(self, changeRoom, dialogId=0):
         self.changeRoom = changeRoom
 
-    def DoSpecialAction(self, collision, screenWidth, screenHeight):
-        pass
+    def Activate(self, collision, screenWidth, screenHeight):
+        self.changeRoom(2, self.dialogId)
+        # self.drawDialog = not self.drawDialog
 
     def Render(self, canvas, xPixelOffset, yPixelOffset, xPosition, yPosition):
         super().Render(canvas, xPixelOffset, yPixelOffset, xPosition, yPosition)
+        canvas.create_text(self.x + self.width / 2, self.y + self.height / 2, fill="black", font="sans-serif 8", text=self.text)
+        if self.drawDialog:
+            canvas.create_rectangle(0, 0, 200, 200, fill="brown")
+            canvas.create_text(64, 64, fill="black", font="sans-serif 8", text=self.dialog)
 
 
 

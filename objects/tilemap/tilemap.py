@@ -1,4 +1,4 @@
-from objects.tilemap.tile import EmptyTile, SolidTile, WinTile, WarpTile, BoostTile, DecorativeTile, DoorTile
+from objects.tilemap.tile import EmptyTile, SolidTile, WinTile, WarpTile, BoostTile, DecorativeTile, DoorTile, SignTile
 from objects.game_object import GameObject
 from objects.enemies.enemy import Enemy
 from csv import *
@@ -41,19 +41,21 @@ class TileMap(GameObject):
             ]
         
 
-    def GetTileByTypeId(self, typeId):
+    def GetTileByTypeId(self, typeId, changeRoom):
         if str(typeId)[0] == "B":
             return BoostTile(changeRoom=None, direction=int(str(typeId)[1:3]), speed=int(str(typeId)[3:5]))
         if str(typeId)[0] == "W":
             return WarpTile(changeRoom=None, x=int(str(typeId)[1:5]), y=int(str(typeId)[5:9]))
         if str(typeId)[0] == "D":
             return DoorTile(changeRoom=None, x=int(str(typeId)[1:5]), y=int(str(typeId)[5:9]))
+        if str(typeId)[0] == "C":
+            return SignTile(changeRoom=changeRoom, dialogId=int(str(typeId)[1:5]))
 
         tileTypes = {
             -1: DecorativeTile,
             0: EmptyTile,
             1: SolidTile,
-            2: SolidTile
+            2: SignTile
         }
         return tileTypes[int(typeId)]()
 
@@ -63,7 +65,7 @@ class TileMap(GameObject):
         for tileRow in self.tileGrid:
             tileObjectRow = []
             for tile in tileRow:
-                tileOfType = self.GetTileByTypeId(tile)
+                tileOfType = self.GetTileByTypeId(tile, changeRoom)
                 tileOfType.Create(changeRoom=changeRoom)
                 tileObjectRow.append(tileOfType)
             self.tileObjects.append(tileObjectRow)

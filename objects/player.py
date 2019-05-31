@@ -32,6 +32,10 @@ class Player(GameObject):
     fill = "blue"
 
     block = False
+    wasActivateUnheld = False
+
+    unactiveMaxTime = 10
+    unactiveTime = 0
 
     changeRoom = None
 
@@ -65,7 +69,16 @@ class Player(GameObject):
         self.wantUp = 38 in keysHeld
         self.wantRight = 39 in keysHeld    
         self.wantDown = 40 in keysHeld   
-        self.wantActivate = 32 in keysHeld 
+        if not 32 in keysHeld:
+            self.unactiveTime -= 1
+            self.wasActivateUnheld = True
+            self.wantActivate = False
+        if 32 in keysHeld:
+            if self.unactiveTime < 0:
+                self.unactiveTime = self.unactiveMaxTime
+                self.wantActivate = True 
+            else:
+                self.wantActivate = False 
 
         super().Update(keysHeld, screenWidth, screenHeight, collisionObjects, mapFollowing)
     
