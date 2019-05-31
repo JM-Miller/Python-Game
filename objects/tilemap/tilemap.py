@@ -1,4 +1,4 @@
-from objects.tilemap.tile import EmptyTile, SolidTile, WinTile, WarpTile, BoostTile, DecorativeTile
+from objects.tilemap.tile import EmptyTile, SolidTile, WinTile, WarpTile, BoostTile, DecorativeTile, DoorTile
 from objects.game_object import GameObject
 from objects.enemies.enemy import Enemy
 from csv import *
@@ -46,6 +46,8 @@ class TileMap(GameObject):
             return BoostTile(changeRoom=None, direction=int(str(typeId)[1:3]), speed=int(str(typeId)[3:5]))
         if str(typeId)[0] == "W":
             return WarpTile(changeRoom=None, x=int(str(typeId)[1:5]), y=int(str(typeId)[5:9]))
+        if str(typeId)[0] == "D":
+            return DoorTile(changeRoom=None, x=int(str(typeId)[1:5]), y=int(str(typeId)[5:9]))
 
         tileTypes = {
             -1: DecorativeTile,

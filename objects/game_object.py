@@ -41,10 +41,13 @@ class GameObject():
     wantLeft = False
     wantUp = False
     wantDown = False
+    wantActivate = False
 
     isDestroyed = False
 
     mapScrollBuffer = 64
+
+    skipCollision = False
 
     
     def Render(self, canvas):
@@ -58,21 +61,6 @@ class GameObject():
         if self.isDestroyed:
             return
 
-        if self.xMomentum > 0:
-            lastXDirection = 1
-        if self.xMomentum < 0:
-            lastXDirection = -1
-            
-        if self.xMomentum == 0:
-            lastXDirection = 0
-        
-        if self.yMomentum == 0:
-            lastYDirection = 0
-            
-        if self.yMomentum > 0:
-            lastYDirection = 1
-        if self.yMomentum < 0:
-            lastYDirection = -1
 
         if self.xMomentum > self.xMaxSpeed:
             self.xMomentum = self.xMaxSpeed
@@ -164,6 +152,20 @@ class GameObject():
         if not self.wantUp and not self.wantDown:
             self.yMomentum *= -0.05
 
+        if self.wantActivate:
+            activatedObject = self.CheckForCollision(collisionObjects, self.lastXDirection * 2, self.lastYDirection * 2)[0]
+            if activatedObject:
+                activatedObject.Activate([self], screenWidth, screenHeight)
+                
+        if self.xMomentum > 1:
+            self.lastXDirection = 1
+        if self.xMomentum < -1:
+            self.lastXDirection = -1
+            
+        if self.yMomentum > 1:
+            self.lastYDirection = 1
+        if self.yMomentum < -1:
+            self.lastYDirection = -1
 
     def Create(self, changeRoom):
         pass
@@ -172,73 +174,77 @@ class GameObject():
     def Destroy(self):
         self.isDestroyed = True
         self.block = False
+
+    def Activate(self, activator, screenWidth, screenHeight):
+        pass
         
     def CheckForCollision(self, collisionObjects, xAdd=0, yAdd=0):
         selfCheckX = self.x + xAdd
         selfCheckY = self.y + yAdd
         for collision in collisionObjects:
-            collisionTop = collision.y
-            collisionBottom = collision.y + collision.height
-            selfTop = selfCheckY
-            selfBottom = selfCheckY + self.height
+            if not collision.skipCollision:
+                collisionTop = collision.y
+                collisionBottom = collision.y + collision.height
+                selfTop = selfCheckY
+                selfBottom = selfCheckY + self.height
 
-            collisionLeft = collision.x
-            collisionRight = collision.x + collision.width
-            selfLeft = selfCheckX 
-            selfRight = selfCheckX + self.width
+                collisionLeft = collision.x
+                collisionRight = collision.x + collision.width
+                selfLeft = selfCheckX 
+                selfRight = selfCheckX + self.width
 
-            colliding = False
-            collidingLeft = False
-            collidingRight = False
-            collidingUp = False
-            collidingDown = False
-            
-            # Top left
-            if (selfTop >= collisionTop and selfTop <= collisionBottom and selfLeft >= collisionLeft and selfLeft <= collisionRight):
-                colliding = True
-                collidingLeft = True
-                collidingUp = True
+                colliding = False
+                collidingLeft = False
+                collidingRight = False
+                collidingUp = False
+                collidingDown = False
+                
+                # Top left
+                if (selfTop >= collisionTop and selfTop <= collisionBottom and selfLeft >= collisionLeft and selfLeft <= collisionRight):
+                    colliding = True
+                    collidingLeft = True
+                    collidingUp = True
 
-            # Bottom left
-            if (selfBottom <= collisionBottom and selfBottom >= collisionTop and selfLeft >= collisionLeft and selfLeft <= collisionRight):
-                colliding = True
-                collidingLeft = True
-                collidingDown = True
+                # Bottom left
+                if (selfBottom <= collisionBottom and selfBottom >= collisionTop and selfLeft >= collisionLeft and selfLeft <= collisionRight):
+                    colliding = True
+                    collidingLeft = True
+                    collidingDown = True
 
-            # Bottom right
-            if (selfBottom <= collisionBottom and selfBottom >= collisionTop and selfRight <= collisionRight and selfRight >= collisionLeft): 
-                colliding = True
-                collidingDown = True
-                collidingRight = True
+                # Bottom right
+                if (selfBottom <= collisionBottom and selfBottom >= collisionTop and selfRight <= collisionRight and selfRight >= collisionLeft): 
+                    colliding = True
+                    collidingDown = True
+                    collidingRight = True
 
-            # Top right
-            if (selfTop >= collisionTop and selfTop <= collisionBottom and selfRight <= collisionRight and selfRight >= collisionLeft):
-                colliding = True
-                collidingRight = True
-                collidingUp = True
+                # Top right
+                if (selfTop >= collisionTop and selfTop <= collisionBottom and selfRight <= collisionRight and selfRight >= collisionLeft):
+                    colliding = True
+                    collidingRight = True
+                    collidingUp = True
 
-            # Inside left
-            if (selfTop <= collisionTop and selfBottom >= collisionBottom and selfLeft >= collisionLeft and selfLeft <= collisionRight):
-                colliding = True
-                collidingLeft = True
+                # Inside left
+                if (selfTop <= collisionTop and selfBottom >= collisionBottom and selfLeft >= collisionLeft and selfLeft <= collisionRight):
+                    colliding = True
+                    collidingLeft = True
 
-            # Inside right
-            if (selfTop <= collisionTop and selfBottom >= collisionBottom and selfRight >= collisionLeft and selfRight <= collisionRight):
-                colliding = True
-                collidingRight = True
+                # Inside right
+                if (selfTop <= collisionTop and selfBottom >= collisionBottom and selfRight >= collisionLeft and selfRight <= collisionRight):
+                    colliding = True
+                    collidingRight = True
 
-            # Inside top
-            if (selfLeft <= collisionLeft and selfRight >= collisionRight and selfTop >= collisionTop and selfTop <= collisionBottom):
-                colliding = True
-                collidingUp = True
+                # Inside top
+                if (selfLeft <= collisionLeft and selfRight >= collisionRight and selfTop >= collisionTop and selfTop <= collisionBottom):
+                    colliding = True
+                    collidingUp = True
 
-            # Inside bottom
-            if (selfLeft <= collisionLeft and selfRight >= collisionRight and selfBottom >= collisionTop and selfBottom <= collisionBottom):
-                colliding = True
-                collidingDown = True
+                # Inside bottom
+                if (selfLeft <= collisionLeft and selfRight >= collisionRight and selfBottom >= collisionTop and selfBottom <= collisionBottom):
+                    colliding = True
+                    collidingDown = True
 
-            if colliding:
-                return collision, collidingLeft, collidingUp, collidingRight, collidingDown 
+                if colliding:
+                    return collision, collidingLeft, collidingUp, collidingRight, collidingDown 
 
         return None, False, False, False, False
             

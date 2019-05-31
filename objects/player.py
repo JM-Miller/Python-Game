@@ -60,10 +60,12 @@ class Player(GameObject):
     def Update(self, keysHeld, screenWidth=None, screenHeight=None, collisionObjects=None, mapFollowing=True):
         if self.isDestroyed:
             return
+
         self.wantLeft = 37 in keysHeld
         self.wantUp = 38 in keysHeld
         self.wantRight = 39 in keysHeld    
-        self.wantDown = 40 in keysHeld    
+        self.wantDown = 40 in keysHeld   
+        self.wantActivate = 32 in keysHeld 
 
         super().Update(keysHeld, screenWidth, screenHeight, collisionObjects, mapFollowing)
     

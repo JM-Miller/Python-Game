@@ -24,6 +24,9 @@ class SolidTile(Tile):
         self.x = xPosition * self.width + xPixelOffset
         self.y = yPosition * self.height + yPixelOffset
 
+        if self.skipCollision:
+            self.fill = "white"
+
         canvas.create_rectangle(self.x, self.y, self.width + self.x, self.height + self.y, fill=self.fill)
 
 class EmptyTile(Tile):
@@ -79,6 +82,55 @@ class WinTile(SpecialTile):
     def Render(self, canvas, xPixelOffset, yPixelOffset, xPosition, yPosition):
         super().Render(canvas, xPixelOffset, yPixelOffset, xPosition, yPosition)
         canvas.create_text(self.x + self.width / 2, self.y + self.height / 2, fill="black", font="sans-serif 8", text="!")
+
+class DoorTile(SpecialTile):
+    fill = "gray"
+
+    width = 16
+    height = 16
+
+    block = True
+
+    changeRoom = None
+
+    def __init__(self, changeRoom=None, x=0, y=0):
+        self.targetX = x
+        self.targetY = y
+
+    def Create(self, changeRoom):
+        self.changeRoom = changeRoom
+
+    def Activate(self, collision, screenWidth, screenHeight):
+        print('Warp!')
+        collision[0].x = (self.targetX * self.width) - collision[0].xTileMapMove
+        collision[0].y = (self.targetY * self.height) - collision[0].yTileMapMove
+        # Left
+        if collision[0].x < collision[0].mapScrollBuffer:
+            diff = collision[0].mapScrollBuffer - ((collision[0].x + collision[0].xTileMapMove) - collision[0].width)
+            collision[0].x = collision[0].mapScrollBuffer
+            collision[0].xTileMapMove = -diff
+            print(diff)
+
+        # Right
+        if collision[0].x > screenWidth - collision[0].mapScrollBuffer:
+            diff = ((collision[0].x + collision[0].xTileMapMove) - collision[0].width) - (screenWidth - collision[0].mapScrollBuffer)
+            collision[0].x = screenWidth - collision[0].mapScrollBuffer
+            collision[0].xTileMapMove = diff
+            print(diff)
+            
+        # Top
+        if collision[0].y < collision[0].mapScrollBuffer:
+            diff = collision[0].mapScrollBuffer - ((collision[0].y + collision[0].yTileMapMove) - collision[0].height)
+            collision[0].y = collision[0].mapScrollBuffer
+            collision[0].yTileMapMove = -diff
+            print(diff)
+
+        # Bottom
+        if collision[0].y > screenHeight - collision[0].mapScrollBuffer:
+            diff = ((collision[0].y + collision[0].yTileMapMove) - collision[0].height) - (screenHeight - collision[0].mapScrollBuffer)
+            collision[0].y = screenHeight - collision[0].mapScrollBuffer
+            collision[0].yTileMapMove = diff
+            print(diff)
 
 
 class WarpTile(SpecialTile):

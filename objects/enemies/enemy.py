@@ -52,7 +52,7 @@ class Enemy(GameObject):
         self.xPixelOffset = xPixelOffset
         self.yPixelOffset = yPixelOffset
 
-        playerCollision = self.CheckForCollision([self.playerObject])
+        playerCollision = self.CheckForCollision([self.playerObject])[0]
 
         if playerCollision is not None: 
             if self.playerObject.y >= self.y: 
