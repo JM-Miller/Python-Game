@@ -39,7 +39,8 @@ class GameObject():
 
     wantRight = False
     wantLeft = False
-    wantJump = False
+    wantUp = False
+    wantDown = False
 
     isDestroyed = False
 
@@ -86,11 +87,24 @@ class GameObject():
                 if self.xMomentum < self.xMaxAccel:
                     self.xMomentum += self.xAccel
 
-        if self.wantJump:
-            if self.CheckForCollision(collisionObjects, 0, self.height / 2):
-                self.yMomentum = -self.jumpSpeed
-                print(self.yMomentum)
+        if self.wantUp:
+            if self.yMaxSpeed > -1 * self.yMomentum:
+                self.yMomentum -= self.yAccel
 
+        if self.wantDown:
+            if self.yMaxSpeed > self.yMomentum:
+                self.yMomentum += self.yAccel
+
+
+        if not self.wantUp and not self.wantDown:
+            if self.yMomentum > 0.5:
+                self.yMomentum -= self.yBrake
+            else:
+                if self.yMomentum < 0.5 and self.yMomentum > -0.5:
+                    self.yMomentum = 0
+                else:
+                    if self.yMomentum < -0.5:
+                        self.yMomentum += self.yBrake
 
         if not self.wantLeft and not self.wantRight:
             if self.xMomentum > 0.5:
@@ -102,42 +116,54 @@ class GameObject():
                     if self.xMomentum < -0.5:
                         self.xMomentum += self.xBrake
 
-        
-        playerRightBuffer = self.x + self.width + self.mapScrollBuffer - self.xTileMapMove
-        playerLeftBuffer = self.x - self.mapScrollBuffer - self.xTileMapMove
+        playerRightBuffer = self.x + self.width + self.mapScrollBuffer
+        playerLeftBuffer = self.x - self.mapScrollBuffer
         playerBottomBuffer = self.y + self.height + self.mapScrollBuffer
         playerTopBuffer = self.y - self.mapScrollBuffer
 
-        if self.yMomentum >= self.height:
-            yDir = 1
-            if self.yMomentum < 0:
-                yDir = -1
-            if not self.CheckForCollision(collisionObjects, 0, 1):
-                self.y += self.yMomentum
-            else:
-                self.yMomentum = 0
-        else:
-            if not self.CheckForCollision(collisionObjects, 0, self.yMomentum):
-                self.y += self.yMomentum
-            else:
-                self.yMomentum = 0
+        playerXBuffer = playerLeftBuffer
+        playerYBuffer = playerTopBuffer
+        if self.xMomentum > 0:
+            playerXBuffer = playerRightBuffer
+        if self.yMomentum > 0:
+            playerYBuffer = playerBottomBuffer
 
-        if self.xMomentum >= self.width or self.xMomentum <= -self.width:
-            xDir = 1
-            if self.xMomentum < 0:
-                xDir = -1
-            if not self.CheckForCollision(collisionObjects, xDir):
-                if playerRightBuffer > screenWidth or playerLeftBuffer < 0 and (self.xMomentum >= 1 or self.xMomentum <= -1):
+        if not self.CheckForCollision(collisionObjects, self.xMomentum):
+            if playerXBuffer > screenWidth or playerXBuffer < 0:
+                self.xTileMapMove += self.xMomentum
+            else:
+                self.x += self.xMomentum
+        else:
+            self.xMomentum *= -0.05
+            if not self.CheckForCollision(collisionObjects, self.xMomentum):
+                if playerXBuffer > screenWidth or playerXBuffer < 0:
                     self.xTileMapMove += self.xMomentum
                 else:
                     self.x += self.xMomentum
             else:
                 self.xMomentum = 0
-        else:
-            if not self.CheckForCollision(collisionObjects, self.xMomentum):
-                    self.x += self.xMomentum
+
+            
+        if not self.CheckForCollision(collisionObjects, 0, self.yMomentum):
+            if playerYBuffer > screenHeight or playerYBuffer < 0:
+                self.yTileMapMove += self.yMomentum
             else:
-                self.xMomentum = 0
+                self.y += self.yMomentum
+        else:
+            self.yMomentum *= -0.05
+            if not self.CheckForCollision(collisionObjects, 0, self.yMomentum):
+                if playerYBuffer > screenHeight or playerYBuffer < 0:
+                    self.yTileMapMove += self.yMomentum
+                else:
+                    self.y += self.yMomentum
+            self.yMomentum = 0
+
+
+        if not self.wantLeft and not self.wantRight:
+            self.xMomentum *= -0.05
+        if not self.wantUp and not self.wantDown:
+            self.yMomentum *= -0.05
+
 
     def Create(self, changeRoom):
         pass
@@ -161,18 +187,37 @@ class GameObject():
             selfLeft = selfCheckX 
             selfRight = selfCheckX + self.width
             
+            # Top left
             if (selfTop >= collisionTop and selfTop <= collisionBottom and selfLeft >= collisionLeft and selfLeft <= collisionRight):
                 return collision
 
+            # Bottom left
             if (selfBottom <= collisionBottom and selfBottom >= collisionTop and selfLeft >= collisionLeft and selfLeft <= collisionRight):
                 return collision
 
+            # Bottom right
             if (selfBottom <= collisionBottom and selfBottom >= collisionTop and selfRight <= collisionRight and selfRight >= collisionLeft): 
                 return collision
 
-            if (selfTop <= collisionTop and selfTop >= collisionBottom and selfRight <= collisionRight and selfRight >= collisionLeft):
+            # Top right
+            if (selfTop >= collisionTop and selfTop <= collisionBottom and selfRight <= collisionRight and selfRight >= collisionLeft):
                 return collision
 
+            # Inside left
+            if (selfTop <= collisionTop and selfBottom >= collisionBottom and selfLeft >= collisionLeft and selfLeft <= collisionRight):
+                return collision
+
+            # Inside right
+            if (selfTop <= collisionTop and selfBottom >= collisionBottom and selfRight >= collisionLeft and selfRight <= collisionRight):
+                return collision
+
+            # Inside top
+            if (selfLeft <= collisionLeft and selfRight >= collisionRight and selfTop >= collisionTop and selfTop <= collisionBottom):
+                return collision
+
+            # Inside bottom
+            if (selfLeft <= collisionLeft and selfRight >= collisionRight and selfBottom >= collisionTop and selfBottom <= collisionBottom):
+                return collision
 
         return None
             

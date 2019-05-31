@@ -9,7 +9,7 @@ class TestRoom(Room):
     
     scrollBuffer = 64
 
-    gravity = 1
+    gravity = 0
     collisionObjectsInRoom = []
 
     playerObject = None

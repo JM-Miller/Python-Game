@@ -9,18 +9,18 @@ class Player(GameObject):
     height = 16
 
     weight = 1
-    xAccel = 0.25
+    xAccel = 0.5
+    yAccel = 0.5
 
     xBrake = 1
     yBrake = 1
 
-    xMaxSpeed = 50
-    yMaxSpeed = 50
+    xMaxSpeed = 3
+    yMaxSpeed = 3
     
     xMaxAccel = 5
-    yMaxAccel = 7.5
+    yMaxAccel = 5
 
-    jumpSpeed = 8
 
     startHealth = 100
     currentHealth = 100
@@ -61,8 +61,9 @@ class Player(GameObject):
         if self.isDestroyed:
             return
         self.wantLeft = 37 in keysHeld
-        self.wantJump = 38 in keysHeld
+        self.wantUp = 38 in keysHeld
         self.wantRight = 39 in keysHeld    
+        self.wantDown = 40 in keysHeld    
         super().Update(keysHeld, screenWidth, screenHeight, collisionObjects, mapFollowing)
     
 
