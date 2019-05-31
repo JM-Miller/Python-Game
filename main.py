@@ -47,6 +47,7 @@ class Application(Frame):
             
         self.CANVAS.update()
         
+        
     def initGame(self):
         self.activeRoom = test_room.TestRoom()
         self.rooms = { 1: self.activeRoom, 0: menu_room.MenuRoom()}

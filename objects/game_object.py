@@ -3,8 +3,8 @@ class GameObject():
 
     x = 160
     y = 160
-    width = 16
-    height = 16
+    width = 15
+    height = 15
 
     weight = 0
 
@@ -87,8 +87,9 @@ class GameObject():
                     self.xMomentum += self.xAccel
 
         if self.wantJump:
-            if self.CheckForYCollision(collisionObjects):
+            if self.CheckForCollision(collisionObjects, 0, self.height / 2):
                 self.yMomentum = -self.jumpSpeed
+                print(self.yMomentum)
 
 
         if not self.wantLeft and not self.wantRight:
@@ -101,56 +102,42 @@ class GameObject():
                     if self.xMomentum < -0.5:
                         self.xMomentum += self.xBrake
 
-        if self.xMomentum == 0 and self.CheckForXCollision(collisionObjects):
-            self.xMomentum = 2
-            self.x += self.xMomentum * -self.lastXDirection
-            self.yMomentum = 0
-        if self.yMomentum == 0 and self.CheckForYCollision(collisionObjects):
-            self.yMomentum = 2
-            self.y += self.yMomentum * -self.lastYDirection
-            self.yMomentum = 0
         
-        playerRightBuffer = self.x + self.width + self.mapScrollBuffer
-        playerLeftBuffer = self.x - self.mapScrollBuffer
+        playerRightBuffer = self.x + self.width + self.mapScrollBuffer - self.xTileMapMove
+        playerLeftBuffer = self.x - self.mapScrollBuffer - self.xTileMapMove
         playerBottomBuffer = self.y + self.height + self.mapScrollBuffer
         playerTopBuffer = self.y - self.mapScrollBuffer
 
-
-        if not self.CheckForYCollision(collisionObjects):
-            if playerBottomBuffer > screenWidth:
-                self.yTileMapMove += self.yMomentum
-            else:
-                self.y += self.yMomentum
-        else:
-            self.yMomentum *= -1
-            if self.yMomentum > 0:
-                self.yMomentum = -1
+        if self.yMomentum >= self.height:
+            yDir = 1
             if self.yMomentum < 0:
-                self.yMomentum = 1
-            if not self.CheckForYCollision(collisionObjects):
-                if playerBottomBuffer > screenWidth:
-                    self.yTileMapMove += self.yMomentum
-                else:
-                    self.y += self.yMomentum
-            self.yMomentum = 1
-
-        playerXBuffer = playerLeftBuffer
-        if self.xMomentum > 0:
-            playerXBuffer = playerRightBuffer
-
-        if not self.CheckForXCollision(collisionObjects):
-            if playerXBuffer > screenWidth or playerXBuffer < 0:
-                self.xTileMapMove += self.xMomentum
+                yDir = -1
+            if not self.CheckForCollision(collisionObjects, 0, 1):
+                self.y += self.yMomentum
             else:
-                self.x += self.xMomentum
+                self.yMomentum = 0
         else:
-            self.xMomentum *= -0.5
-            if not self.CheckForXCollision(collisionObjects):
-                if playerXBuffer > screenWidth or playerXBuffer < 0:
+            if not self.CheckForCollision(collisionObjects, 0, self.yMomentum):
+                self.y += self.yMomentum
+            else:
+                self.yMomentum = 0
+
+        if self.xMomentum >= self.width or self.xMomentum <= -self.width:
+            xDir = 1
+            if self.xMomentum < 0:
+                xDir = -1
+            if not self.CheckForCollision(collisionObjects, xDir):
+                if playerRightBuffer > screenWidth or playerLeftBuffer < 0 and (self.xMomentum >= 1 or self.xMomentum <= -1):
                     self.xTileMapMove += self.xMomentum
                 else:
                     self.x += self.xMomentum
-            self.xMomentum = 0
+            else:
+                self.xMomentum = 0
+        else:
+            if not self.CheckForCollision(collisionObjects, self.xMomentum):
+                    self.x += self.xMomentum
+            else:
+                self.xMomentum = 0
 
     def Create(self, changeRoom):
         pass
@@ -160,70 +147,32 @@ class GameObject():
         self.isDestroyed = True
         self.block = False
         
-    def CheckForYCollision(self, collisionObjects):
+    def CheckForCollision(self, collisionObjects, xAdd=0, yAdd=0):
+        selfCheckX = self.x + xAdd
+        selfCheckY = self.y + yAdd
         for collision in collisionObjects:
             collisionTop = collision.y
             collisionBottom = collision.y + collision.height
-            selfTop = self.y
-            selfBottom = self.y + self.height
-            if self.yTileMapMove != 0:
-                selfTop += self.yMomentum
-                selfBottom += self.yMomentum
-            
-            selfTop += self.yMomentum
-            selfBottom += self.yMomentum
+            selfTop = selfCheckY
+            selfBottom = selfCheckY + self.height
 
             collisionLeft = collision.x
             collisionRight = collision.x + collision.width
-            selfLeft = self.x
-            selfRight = self.x + self.width
-
-
-            if selfLeft > collisionLeft and selfLeft < collisionRight or selfRight > collisionLeft and selfRight < collisionRight:
-
-                if selfTop > collisionBottom and selfTop < collisionTop:
-                    return collision
-                if selfBottom > collisionTop and selfBottom < collisionBottom:
-                    return collision
-
-                    
-                if selfBottom > collisionBottom and selfBottom < collisionTop:
-                    return collision
-                if selfTop > collisionTop and selfTop < collisionBottom:
-                    return collision
-
-        return None
+            selfLeft = selfCheckX 
+            selfRight = selfCheckX + self.width
             
-    def CheckForXCollision(self, collisionObjects):
-        for collision in collisionObjects:
-            collisionTop = collision.y
-            collisionBottom = collision.y + collision.height
-            selfTop = self.y
-            selfBottom = self.y + self.height
+            if (selfTop >= collisionTop and selfTop <= collisionBottom and selfLeft >= collisionLeft and selfLeft <= collisionRight):
+                return collision
 
-            collisionLeft = collision.x
-            collisionRight = collision.x + collision.width
-            selfLeft = self.x 
-            selfRight = self.x + self.width
-            
-            if self.xTileMapMove != 0:
-                selfLeft += 1
-                selfRight += 1
+            if (selfBottom <= collisionBottom and selfBottom >= collisionTop and selfLeft >= collisionLeft and selfLeft <= collisionRight):
+                return collision
 
-            selfLeft += self.xMomentum
-            selfRight += self.xMomentum
+            if (selfBottom <= collisionBottom and selfBottom >= collisionTop and selfRight <= collisionRight and selfRight >= collisionLeft): 
+                return collision
 
-            if selfTop > collisionTop and selfTop < collisionBottom or selfBottom > collisionTop and selfBottom < collisionBottom:
+            if (selfTop <= collisionTop and selfTop >= collisionBottom and selfRight <= collisionRight and selfRight >= collisionLeft):
+                return collision
 
-                if selfLeft > collisionRight and selfLeft < collisionLeft:
-                    return collision
-                if selfRight > collisionLeft and selfRight < collisionRight:
-                    return collision
-
-                if selfRight > collisionRight and selfRight < collisionLeft:
-                    return collision
-                if selfLeft > collisionLeft and selfLeft < collisionRight:
-                    return collision
 
         return None
             

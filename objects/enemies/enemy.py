@@ -4,7 +4,7 @@ class Enemy(GameObject):
 
     fill = "red"
     weight = 1
-    x = 160
+    x = 180
     y = 80
     width = 17
     height = 17
@@ -13,14 +13,17 @@ class Enemy(GameObject):
     xPixelOffset = 0
     yPixelOffset = 0
 
+    collisionX = 0
+    collisionY = 0
+
     startHealth = 100
     currentHealth = 100
     showHealth = False
     framesSinceHealthShown = 0
     framesToShowHealth = 90
 
-    damageDealt = 50
-    damageTaken = 5
+    damageDealt = 10
+    damageTaken = 10
 
     block = False
 
@@ -40,36 +43,49 @@ class Enemy(GameObject):
             self.showHealth = False
             self.framesSinceHealthShown = 0
 
-        self.x -= self.xPixelOffset - xPixelOffset
-        self.y -= self.yPixelOffset - yPixelOffset
+        xReset = self.x
+        xOffsetReset = self.xPixelOffset
+        self.xPixelOffset -= xPixelOffset
+
+        self.x += self.xPixelOffset - xPixelOffset
+        self.y += self.yPixelOffset - yPixelOffset
         self.xPixelOffset = xPixelOffset
         self.yPixelOffset = yPixelOffset
-        super().Update(keysHeld, screenWidth, screenHeight, collisionObjects, mapFollowing)
 
-        playerCollisionX = self.playerObject.CheckForXCollision([self])
-        playerCollisionY = self.playerObject.CheckForYCollision([self])
+        playerCollision = self.CheckForCollision([self.playerObject])
 
-        if playerCollisionX is not None or playerCollisionY is not None: 
+        if playerCollision is not None: 
             if self.playerObject.y >= self.y: 
                 self.playerObject.xMomentum = -self.playerObject.xMomentum
-                self.playerObject.TakeDamage((self.xMomentum + 1) * self.damageDealt)
+                self.playerObject.TakeDamage(self.damageDealt)
+                # self.playerObject.TakeDamage((self.xMomentum + 1) * self.damageDealt)
             else:
-                self.xMomentum = self.playerObject.xMomentum + 1
-                if self.playerObject.x < self.x:
-                    self.x += self.playerObject.width
-                if self.playerObject.x > self.x:
-                    self.x -= self.width
-                self.TakeDamage((self.playerObject.yMomentum + 1) * self.damageTaken)
+                if self.playerObject.x <= self.x:
+                    self.xMomentum = self.playerObject.width
+                if self.playerObject.x >= self.x:
+                    self.xMomentum = -self.playerObject.width
+                # self.TakeDamage((self.playerObject.yMomentum + 1) * self.damageTaken)
+                # self.xMomentum = self.xMaxSpeed
+                self.TakeDamage(self.damageTaken)
+        super().Update(keysHeld, screenWidth, screenHeight, collisionObjects, mapFollowing)
+
+        
+        # self.x = xReset
 
     def Render(self, canvas):
         if self.isDestroyed:
             return
+        
+        xReset = self.x
+        self.x += self.xPixelOffset
+        
 
         super().Render(canvas)
         if self.showHealth:
             healthPercent = self.currentHealth / self.startHealth
             healthBarWidth = self.width * healthPercent + 2
             canvas.create_rectangle(self.x + (self.width / 2) - (healthBarWidth / 2), self.y - 5, self.x + (self.width / 2) + (healthBarWidth / 2), self.y - 2, fill="green")
+        self.x = xReset
 
     def TakeDamage(self, damage):
         self.showHealth = True

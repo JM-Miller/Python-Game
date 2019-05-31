@@ -5,8 +5,8 @@ class Player(GameObject):
     x = 80
     y = 80
 
-    width = 15
-    height = 15
+    width = 16
+    height = 16
 
     weight = 1
     xAccel = 0.25
@@ -20,7 +20,7 @@ class Player(GameObject):
     xMaxAccel = 5
     yMaxAccel = 7.5
 
-    jumpSpeed = 10
+    jumpSpeed = 8
 
     startHealth = 100
     currentHealth = 100

@@ -40,15 +40,7 @@ class SpecialTile(Tile):
         pass
 
     def Update(self, keysHeld, screenWidth=None, screenHeight=None, collisionObjects=None):
-        collision = None
-        collisionX = self.CheckForXCollision(collisionObjects)
-        collisionY = self.CheckForYCollision(collisionObjects)
-
-        if collisionX is not None:
-            collision = collisionX
-        else:
-            if collisionY is not None:
-                collision = collisionY
+        collision = self.CheckForCollision(collisionObjects)
 
         if collision is not None:
             self.DoSpecialAction(collision)
@@ -63,6 +55,9 @@ class SpecialTile(Tile):
 
 class WinTile(SpecialTile):
     fill = "yellow"
+
+    width = 16
+    height = 16
 
     changeRoom = None
 
@@ -87,6 +82,9 @@ class BoostTile(SpecialTile):
     boostSpeed = 20
     boostDirection = 0
 
+    width = 16
+    height = 16
+
     text = "^"
 
     def __init__(self, changeRoom, direction, speed):
@@ -103,7 +101,6 @@ class BoostTile(SpecialTile):
             self.text = ">"
         if direction == 3:
             self.text = "V"
-        print(changeRoom, direction, speed)
 
     def Create(self, changeRoom=None):
         pass
