@@ -128,14 +128,14 @@ class GameObject():
         if self.yMomentum > 0:
             playerYBuffer = playerBottomBuffer
 
-        if not self.CheckForCollision(collisionObjects, self.xMomentum):
+        if not self.CheckForCollision(collisionObjects, self.xMomentum)[0]:
             if playerXBuffer > screenWidth or playerXBuffer < 0:
                 self.xTileMapMove += self.xMomentum
             else:
                 self.x += self.xMomentum
         else:
             self.xMomentum *= -0.05
-            if not self.CheckForCollision(collisionObjects, self.xMomentum):
+            if not self.CheckForCollision(collisionObjects, self.xMomentum)[0]:
                 if playerXBuffer > screenWidth or playerXBuffer < 0:
                     self.xTileMapMove += self.xMomentum
                 else:
@@ -144,14 +144,14 @@ class GameObject():
                 self.xMomentum = 0
 
             
-        if not self.CheckForCollision(collisionObjects, 0, self.yMomentum):
+        if not self.CheckForCollision(collisionObjects, 0, self.yMomentum)[0]:
             if playerYBuffer > screenHeight or playerYBuffer < 0:
                 self.yTileMapMove += self.yMomentum
             else:
                 self.y += self.yMomentum
         else:
             self.yMomentum *= -0.05
-            if not self.CheckForCollision(collisionObjects, 0, self.yMomentum):
+            if not self.CheckForCollision(collisionObjects, 0, self.yMomentum)[0]:
                 if playerYBuffer > screenHeight or playerYBuffer < 0:
                     self.yTileMapMove += self.yMomentum
                 else:
@@ -186,39 +186,60 @@ class GameObject():
             collisionRight = collision.x + collision.width
             selfLeft = selfCheckX 
             selfRight = selfCheckX + self.width
+
+            colliding = False
+            collidingLeft = False
+            collidingRight = False
+            collidingUp = False
+            collidingDown = False
             
             # Top left
             if (selfTop >= collisionTop and selfTop <= collisionBottom and selfLeft >= collisionLeft and selfLeft <= collisionRight):
-                return collision
+                colliding = True
+                collidingLeft = True
+                collidingUp = True
 
             # Bottom left
             if (selfBottom <= collisionBottom and selfBottom >= collisionTop and selfLeft >= collisionLeft and selfLeft <= collisionRight):
-                return collision
+                colliding = True
+                collidingLeft = True
+                collidingDown = True
 
             # Bottom right
             if (selfBottom <= collisionBottom and selfBottom >= collisionTop and selfRight <= collisionRight and selfRight >= collisionLeft): 
-                return collision
+                colliding = True
+                collidingDown = True
+                collidingRight = True
 
             # Top right
             if (selfTop >= collisionTop and selfTop <= collisionBottom and selfRight <= collisionRight and selfRight >= collisionLeft):
-                return collision
+                colliding = True
+                collidingRight = True
+                collidingUp = True
 
             # Inside left
             if (selfTop <= collisionTop and selfBottom >= collisionBottom and selfLeft >= collisionLeft and selfLeft <= collisionRight):
-                return collision
+                colliding = True
+                collidingLeft = True
 
             # Inside right
             if (selfTop <= collisionTop and selfBottom >= collisionBottom and selfRight >= collisionLeft and selfRight <= collisionRight):
-                return collision
+                colliding = True
+                collidingRight = True
 
             # Inside top
             if (selfLeft <= collisionLeft and selfRight >= collisionRight and selfTop >= collisionTop and selfTop <= collisionBottom):
-                return collision
+                colliding = True
+                collidingUp = True
 
             # Inside bottom
             if (selfLeft <= collisionLeft and selfRight >= collisionRight and selfBottom >= collisionTop and selfBottom <= collisionBottom):
-                return collision
+                colliding = True
+                collidingDown = True
 
-        return None
+            if colliding:
+                return collision, collidingLeft, collidingUp, collidingRight, collidingDown 
+
+        return None, False, False, False, False
             
         

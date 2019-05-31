@@ -36,14 +36,22 @@ class SpecialTile(Tile):
     fill = "purple"
     special = True
 
-    def DoSpecialAction(self, collision):
+    def DoSpecialAction(self, collision, screenWidth, screenHeight):
         pass
 
     def Update(self, keysHeld, screenWidth=None, screenHeight=None, collisionObjects=None):
         collision = self.CheckForCollision(collisionObjects)
 
-        if collision is not None:
-            self.DoSpecialAction(collision)
+        if collision[0] is not None:
+            # if collision[1]:
+            #     print("LEFT")
+            # if collision[2]:
+            #     print("UP")
+            # if collision[3]:
+            #     print("RIGHT")
+            # if collision[4]:
+            #     print("DOWN")
+            self.DoSpecialAction(collision, screenWidth, screenHeight)
     
     def Render(self, canvas, xPixelOffset, yPixelOffset, xPosition, yPosition):
         self.x = xPosition * self.width + xPixelOffset
@@ -64,13 +72,85 @@ class WinTile(SpecialTile):
     def Create(self, changeRoom):
         self.changeRoom = changeRoom
 
-    def DoSpecialAction(self, collision):
+    def DoSpecialAction(self, collision, screenWidth, screenHeight):
         print('You Win!')
         self.changeRoom(0)
 
     def Render(self, canvas, xPixelOffset, yPixelOffset, xPosition, yPosition):
         super().Render(canvas, xPixelOffset, yPixelOffset, xPosition, yPosition)
         canvas.create_text(self.x + self.width / 2, self.y + self.height / 2, fill="black", font="sans-serif 8", text="!")
+
+
+class WarpTile(SpecialTile):
+    fill = "blue"
+
+    width = 16
+    height = 16
+
+    targetX = 34
+    targetY = 20
+
+    changeRoom = None
+    
+    def __init__(self, changeRoom=None, x=0, y=0):
+        self.targetX = x
+        self.targetY = y
+
+    def Create(self, changeRoom):
+        self.changeRoom = changeRoom
+
+    def DoSpecialAction(self, collision, screenWidth, screenHeight):
+        print('Warp!')
+        collision[0].x = (self.targetX * self.width) - collision[0].xTileMapMove
+        collision[0].y = (self.targetY * self.height) - collision[0].yTileMapMove
+        # Left
+        if collision[0].x < collision[0].mapScrollBuffer:
+            diff = collision[0].mapScrollBuffer - ((collision[0].x + collision[0].xTileMapMove) - collision[0].width)
+            collision[0].x = collision[0].mapScrollBuffer
+            collision[0].xTileMapMove = -diff
+            print(diff)
+
+        # Right
+        if collision[0].x > screenWidth - collision[0].mapScrollBuffer:
+            diff = ((collision[0].x + collision[0].xTileMapMove) - collision[0].width) - (screenWidth - collision[0].mapScrollBuffer)
+            collision[0].x = screenWidth - collision[0].mapScrollBuffer
+            collision[0].xTileMapMove = diff
+            print(diff)
+            
+        # Top
+        if collision[0].y < collision[0].mapScrollBuffer:
+            diff = collision[0].mapScrollBuffer - ((collision[0].y + collision[0].yTileMapMove) - collision[0].height)
+            collision[0].y = collision[0].mapScrollBuffer
+            collision[0].yTileMapMove = -diff
+            print(diff)
+
+        # Bottom
+        if collision[0].y > screenHeight - collision[0].mapScrollBuffer:
+            diff = ((collision[0].y + collision[0].yTileMapMove) - collision[0].height) - (screenHeight - collision[0].mapScrollBuffer)
+            collision[0].y = screenHeight - collision[0].mapScrollBuffer
+            collision[0].yTileMapMove = diff
+            print(diff)
+
+    def Render(self, canvas, xPixelOffset, yPixelOffset, xPosition, yPosition):
+        super().Render(canvas, xPixelOffset, yPixelOffset, xPosition, yPosition)
+        canvas.create_text(self.x + self.width / 2, self.y + self.height / 2, fill="black", font="sans-serif 8", text="!")
+
+
+class DecorativeTile(SpecialTile):
+    fill = "pink"
+    width = 16
+    height = 16
+
+    changeRoom = None
+
+    def Create(self, changeRoom):
+        self.changeRoom = changeRoom
+
+    def DoSpecialAction(self, collision, screenWidth, screenHeight):
+        pass
+
+    def Render(self, canvas, xPixelOffset, yPixelOffset, xPosition, yPosition):
+        super().Render(canvas, xPixelOffset, yPixelOffset, xPosition, yPosition)
 
 
 
@@ -108,16 +188,16 @@ class BoostTile(SpecialTile):
     def DoSpecialAction(self, collision):
 
         if self.boostDirection == 0:
-            collision.xMomentum -= self.boostSpeed 
+            collision[0].xMomentum -= self.boostSpeed 
 
         if self.boostDirection == 1:
-            collision.yMomentum -= self.boostSpeed 
+            collision[0].yMomentum -= self.boostSpeed 
 
         if self.boostDirection == 2:
-            collision.xMomentum += self.boostSpeed 
+            collision[0].xMomentum += self.boostSpeed 
 
         if self.boostDirection == 3:
-            collision.xMomentum += self.boostSpeed 
+            collision[0].xMomentum += self.boostSpeed 
 
 
     def Render(self, canvas, xPixelOffset, yPixelOffset, xPosition, yPosition):

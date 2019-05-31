@@ -5,8 +5,8 @@ class Player(GameObject):
     x = 80
     y = 80
 
-    width = 16
-    height = 16
+    width = 15
+    height = 15
 
     weight = 1
     xAccel = 0.5
@@ -64,6 +64,7 @@ class Player(GameObject):
         self.wantUp = 38 in keysHeld
         self.wantRight = 39 in keysHeld    
         self.wantDown = 40 in keysHeld    
+
         super().Update(keysHeld, screenWidth, screenHeight, collisionObjects, mapFollowing)
     
 

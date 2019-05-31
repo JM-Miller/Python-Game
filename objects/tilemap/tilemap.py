@@ -1,12 +1,12 @@
-from objects.tilemap.tile import EmptyTile, SolidTile, WinTile, BoostTile
+from objects.tilemap.tile import EmptyTile, SolidTile, WinTile, WarpTile, BoostTile, DecorativeTile
 from objects.game_object import GameObject
 from objects.enemies.enemy import Enemy
 from csv import *
 
 class TileMap(GameObject):
 
-    x = 0
-    y = 0
+    x = -0
+    y = -0
 
     mapScrollBuffer = 64
 
@@ -43,13 +43,15 @@ class TileMap(GameObject):
 
     def GetTileByTypeId(self, typeId):
         if str(typeId)[0] == "B":
-            
             return BoostTile(changeRoom=None, direction=int(str(typeId)[1:3]), speed=int(str(typeId)[3:5]))
+        if str(typeId)[0] == "W":
+            return WarpTile(changeRoom=None, x=int(str(typeId)[1:5]), y=int(str(typeId)[5:9]))
 
         tileTypes = {
+            -1: DecorativeTile,
             0: EmptyTile,
             1: SolidTile,
-            2: WinTile
+            2: SolidTile
         }
         return tileTypes[int(typeId)]()
 
@@ -86,7 +88,7 @@ class TileMap(GameObject):
                 if tile.block:
                     collisions.append(tile)
                 if tile.special:
-                    tile.Update(self, keysHeld, collisionObjects=[self.playerObject])
+                    tile.Update(keysHeld, screenWidth, screenHeight, [self.playerObject])
 
                     
         for gameObject in self.gameObjects:
