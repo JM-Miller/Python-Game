@@ -1,6 +1,7 @@
 from objects.tilemap.tilemap import TileMap
 from objects.player import Player
 from rooms.room import Room
+import time
 
 class TestRoom(Room):
 
@@ -11,6 +12,11 @@ class TestRoom(Room):
 
     gravity = 0
     collisionObjectsInRoom = []
+
+    currentHour = 1
+    currentMinute = 45
+
+    lastHitTime = None
 
     playerObject = None
 
@@ -36,7 +42,30 @@ class TestRoom(Room):
                 self.collisionObjectsInRoom.append(gameObject)
 
 
+    def Render(self, canvas):
+        super().Render(canvas)
+        canvas.create_rectangle(self.screenWidth - 56, 32, self.screenWidth - 16, 56, fill="brown")
+        currentMinuteDisplay = str(self.currentMinute)
+        if len(currentMinuteDisplay) == 1:
+            currentMinuteDisplay = "0" + currentMinuteDisplay
+        currentHourDisplay = str(self.currentHour)
+        if len(currentHourDisplay) == 1:
+            currentHourDisplay = "0" + currentHourDisplay
+        canvas.create_text(self.screenWidth - 36, 44, fill="white", font="sans-serif 8", text=(currentHourDisplay + ":" + currentMinuteDisplay))
+
     def Update(self, keysHeld):
+
+        if not self.lastHitTime:
+            self.lastHitTime = time.time()
+        else:
+            if time.time() - self.lastHitTime > 1:
+                self.lastHitTime = time.time()
+                self.currentMinute += 1
+                if self.currentMinute == 60:
+                    self.currentHour += 1
+                    self.currentMinute = 0
+                    if self.currentHour == 24:
+                        self.currentHour = 0
         
         for tileMap in self.tileMaps:
             for gameObject in tileMap.gameObjects:
