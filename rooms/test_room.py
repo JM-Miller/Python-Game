@@ -13,8 +13,8 @@ class TestRoom(Room):
     gravity = 0
     collisionObjectsInRoom = []
 
-    currentHour = 1
-    currentMinute = 45
+    currentHour = 12
+    currentMinute = 0
 
     lastHitTime = None
 
@@ -30,8 +30,10 @@ class TestRoom(Room):
         self.gameObjects = [self.playerObject, foregroundTileMap]
         self.gameObjects.append(foregroundTileMap)
 
-
         for tileMap in self.tileMaps:
+            for gameObject in tileMap.gameObjects:
+                if gameObject.block:
+                    self.collisionObjectsInRoom.append(gameObject)
             for tileRow in tileMap.tileObjects:
                 for tileObject in tileRow:
                     if tileObject.block:
@@ -71,9 +73,9 @@ class TestRoom(Room):
             for gameObject in tileMap.gameObjects:
                 yAdd = self.gravity * gameObject.weight
                 gameObject.yMomentum += yAdd
-                gameObject.Update(keysHeld, 0, 0, self.screenWidth, self.screenHeight, self.collisionObjectsInRoom)
+                gameObject.Update(keysHeld, self.currentHour, self.currentMinute, self.playerObject.xTileMapMove, self.playerObject.yTileMapMove, screenWidth=self.screenWidth, screenHeight=self.screenHeight, collisionObjects=self.collisionObjectsInRoom)
 
         for gameObject in self.gameObjects:
             yAdd = self.gravity * gameObject.weight
             gameObject.yMomentum += yAdd
-            gameObject.Update(keysHeld, self.screenWidth, self.screenHeight, self.collisionObjectsInRoom)
+            gameObject.Update(keysHeld, self.currentHour, self.currentMinute, self.playerObject.xTileMapMove, self.playerObject.yTileMapMove, self.screenWidth, self.screenHeight, self.collisionObjectsInRoom, True)

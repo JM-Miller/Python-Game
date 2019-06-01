@@ -1,6 +1,7 @@
 from objects.tilemap.tile import EmptyTile, SolidTile, WinTile, WarpTile, BoostTile, DecorativeTile, DoorTile, SignTile
 from objects.game_object import GameObject
 from objects.enemies.enemy import Enemy
+from objects.npc import NPC
 from csv import *
 
 class TileMap(GameObject):
@@ -41,7 +42,7 @@ class TileMap(GameObject):
             ]
         
 
-    def GetTileByTypeId(self, typeId, changeRoom):
+    def GetTileByTypeId(self, typeId, xCord, yCord, changeRoom):
         if str(typeId)[0] == "B":
             return BoostTile(changeRoom=None, direction=int(str(typeId)[1:3]), speed=int(str(typeId)[3:5]))
         if str(typeId)[0] == "W":
@@ -50,6 +51,10 @@ class TileMap(GameObject):
             return DoorTile(changeRoom=None, x=int(str(typeId)[1:5]), y=int(str(typeId)[5:9]))
         if str(typeId)[0] == "C":
             return SignTile(changeRoom=changeRoom, dialogId=int(str(typeId)[1:5]))
+        if str(typeId)[0:3] == "NPC":
+            self.gameObjects.append(NPC(int(str(typeId)[3:7]), changeRoom, self.xTileMapMove + (xCord * 16), self.yTileMapMove + (yCord * 16)))
+            return EmptyTile()
+
 
         tileTypes = {
             -1: DecorativeTile,
@@ -62,10 +67,10 @@ class TileMap(GameObject):
 
     def InitializeTiles(self, changeRoom):
         self.tileObjects = []
-        for tileRow in self.tileGrid:
+        for col, tileRow in enumerate(self.tileGrid):
             tileObjectRow = []
-            for tile in tileRow:
-                tileOfType = self.GetTileByTypeId(tile, changeRoom)
+            for row, tile in enumerate(tileRow):
+                tileOfType = self.GetTileByTypeId(tile, row, col, changeRoom)
                 tileOfType.Create(changeRoom=changeRoom)
                 tileObjectRow.append(tileOfType)
             self.tileObjects.append(tileObjectRow)
@@ -78,7 +83,7 @@ class TileMap(GameObject):
         self.playerObject = player
         self.mapScrollBuffer = scrollBuffer
 
-    def Update(self, keysHeld, screenWidth, screenHeight, collisionObjects):
+    def Update(self, keysHeld, currentHour, currentMinute, xTileMapMove, yTileMapMove, screenWidth, screenHeight, collisionObjects, mapFollowing):
         if self.playerObject.yTileMapMove != 0:
             self.y = -self.playerObject.yTileMapMove
 
@@ -89,14 +94,9 @@ class TileMap(GameObject):
 
         for tileObjectRow in self.tileObjects:
             for tile in tileObjectRow:
-                if tile.block:
-                    collisions.append(tile)
                 if tile.special:
-                    tile.Update(keysHeld, screenWidth, screenHeight, [self.playerObject])
+                    tile.Update(keysHeld, 0, 0, screenWidth=screenWidth, screenHeight=screenHeight, collisionObjects=[self.playerObject])
 
-                    
-        for gameObject in self.gameObjects:
-            gameObject.Update(keysHeld, self.x, self.y, screenWidth, screenHeight, collisions)
 
 
     def Render(self, canvas):

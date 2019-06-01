@@ -42,7 +42,7 @@ class SpecialTile(Tile):
     def DoSpecialAction(self, collision, screenWidth, screenHeight):
         pass
 
-    def Update(self, keysHeld, screenWidth=None, screenHeight=None, collisionObjects=None):
+    def Update(self, keysHeld, xTileMapMove=0, yTileMapMove=0, screenWidth=None, screenHeight=None, collisionObjects=None):
         collision = self.CheckForCollision(collisionObjects)
 
         if collision[0] is not None:

@@ -61,7 +61,7 @@ class Player(GameObject):
             canvas.create_rectangle(self.x + (self.width / 2) - (healthBarWidth / 2), self.y - 5, self.x + (self.width / 2) + (healthBarWidth / 2), self.y - 2, fill="green")
 
 
-    def Update(self, keysHeld, screenWidth=None, screenHeight=None, collisionObjects=None, mapFollowing=True):
+    def Update(self, keysHeld, currentHour, currentMinute, tileMapX, tileMapY, screenWidth, screenHeight, collisionObjects, mapFollowing=True):
         if self.isDestroyed:
             return
 
@@ -80,7 +80,7 @@ class Player(GameObject):
             else:
                 self.wantActivate = False 
 
-        super().Update(keysHeld, screenWidth, screenHeight, collisionObjects, mapFollowing)
+        super().Update(keysHeld, currentHour, currentMinute, 0, 0, screenWidth=screenWidth, screenHeight=screenHeight, collisionObjects=collisionObjects, mapFollowing=mapFollowing)
     
 
     def TakeDamage(self, damage):

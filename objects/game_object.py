@@ -57,7 +57,7 @@ class GameObject():
         canvas.create_rectangle(self.x, self.y, self.x + self.width, self.y + self.height, fill=self.fill)
         
         
-    def Update(self, keysHeld, screenWidth=None, screenHeight=None, collisionObjects=None, mapFollowing=False):
+    def Update(self, keysHeld, currentHour, currentMinute, tileMapX, tileMapY, screenWidth=320, screenHeight=320, collisionObjects=None, mapFollowing=False):
         if self.isDestroyed:
             return
 
@@ -181,6 +181,10 @@ class GameObject():
     def CheckForCollision(self, collisionObjects, xAdd=0, yAdd=0):
         selfCheckX = self.x + xAdd
         selfCheckY = self.y + yAdd
+
+        if not collisionObjects:
+            collisionObjects = []
+
         for collision in collisionObjects:
             if not collision.skipCollision:
                 collisionTop = collision.y
